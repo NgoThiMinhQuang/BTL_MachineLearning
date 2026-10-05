@@ -25,7 +25,7 @@ cường độ nén của bê tông dựa trên thành phần cấp phối và t
 - Số biến đầu vào: 8
 - Số biến đầu ra: 1
 - Tổng số cột : 9
-## 4. Biến đầu ra
+## 5. Biến đầu ra
 
 Biến cần dự đoán:
 
@@ -39,7 +39,7 @@ Cường độ nén của bê tông.
 
 MPa.
 
-## 5. Các biến đầu vào
+## 6. Các biến đầu vào
 
 1. cement - hàm lượng xi măng
 2. slag - hàm lượng xỉ lò cao
@@ -50,14 +50,17 @@ MPa.
 7. fine_aggregate - cốt liệu mịn
 8. age - tuổi bê tông
 
-## 6. Chất lượng dữ liệu ban đầu
+## 7. Chất lượng dữ liệu ban đầu
 
 - Không có giá trị thiếu.
-- Phát hiện 25 lần xuất hiện trùng lặp.
+- Có 25 bản ghi được pandas đánh dấu là duplicate
+so với bản ghi xuất hiện trước đó.
+
+Có tổng cộng 36 dòng thuộc 11 nhóm duplicate hoàn toàn.
 - Tất cả các biến đều là dữ liệu số.
 - Dữ liệu gốc được giữ nguyên, không chỉnh sửa trực tiếp.
 
-## 9. Dữ liệu trùng lặp
+## 8. Dữ liệu trùng lặp
 
 Phát hiện 25 lần xuất hiện trùng lặp bằng:
 
@@ -71,15 +74,20 @@ Các dòng này chưa bị loại bỏ tùy tiện.
 Việc chia train/validation/test sẽ bảo đảm các mẫu có cùng
 đầu vào không xuất hiện ở nhiều tập khác nhau.
 
-## 10. Giấy phép
+## 9. Giấy phép
 
 Theo thông tin của UCI Machine Learning Repository,
 bộ dữ liệu được phân phối theo giấy phép CC BY 4.0.
 
-## 11. Ngày truy cập
+## 10. Ngày truy cập
 
 01/10/2026
 
-## 7. Vị trí dữ liệu gốc
+## 11. Vị trí dữ liệu gốc
 
 data/raw/Concrete_Data.xls
+
+## 12. Checksum
+
+SHA256 của file dữ liệu gốc `Concrete_Data.xls`:
+86ea0e3750a58857e81028075ab9cacae81dcc0a6e302b8214b639ad141238a0

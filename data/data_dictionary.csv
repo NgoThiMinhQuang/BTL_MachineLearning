@@ -1,5 +1,3 @@
-Đề yêu cầu phải có data dictionary cho feature và target.
-Giải thích mỗi cột là gì, đơn vị gì, là đầu vào hay đầu ra.
 name,kieu_du_lieu,don_vi,vai_tro,co_san_khi_du_doan,mo_ta
 cement,float,kg/m3,feature,có,Lượng xi măng trong 1 m3 hỗn hợp bê tông
 slag,float,kg/m3,feature,có,Lượng xỉ lò cao trong 1 m3 hỗn hợp bê tông

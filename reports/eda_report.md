@@ -74,8 +74,28 @@ tuyến tính giữa các biến đầu vào và biến `strength`.
 Giá trị correlation chỉ thể hiện mức độ liên hệ thống kê,
 không chứng minh quan hệ nhân quả.
 
-Phần này sẽ được bổ sung sau khi tạo
-`correlation_matrix.png`.
+Ma trận tương quan được tính chỉ trên tập Train.
+
+Một số hệ số tương quan đáng chú ý với biến `strength`:
+
+- cement: khoảng 0.507
+- age: khoảng 0.333
+- superplasticizer: khoảng 0.329
+- water: khoảng -0.303
+
+Trong đó, `cement` có tương quan tuyến tính dương lớn nhất
+với `strength` trong tập Train.
+
+`water` có tương quan tuyến tính âm với `strength`.
+
+Các biến còn lại có mức tương quan tuyến tính riêng lẻ thấp hơn.
+
+Tuy nhiên, hệ số tương quan chỉ thể hiện mức độ liên hệ
+tuyến tính và không chứng minh quan hệ nhân quả.
+
+Ma trận tương quan được lưu tại:
+
+`reports/figures/correlation_matrix.png`
 
 ## 7. Kiểm tra ngoại lệ
 

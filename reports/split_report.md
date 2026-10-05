@@ -48,8 +48,12 @@ có thể được tái lập trong những lần chạy sau.
 
 ## 4. Xử lý các mẫu trùng lặp
 
-Quá trình kiểm tra ban đầu phát hiện 25 lần xuất hiện
-trùng lặp trong bộ dữ liệu.
+Quá trình kiểm tra bằng `df.duplicated().sum()` cho thấy
+25 bản ghi được đánh dấu là trùng lặp so với các bản ghi
+xuất hiện trước đó.
+
+Khi sử dụng `duplicated(keep=False)`, có tổng cộng
+36 dòng thuộc 11 nhóm trùng lặp hoàn toàn.
 
 Nhóm không xóa các mẫu này một cách tùy tiện.
 
@@ -67,8 +71,9 @@ Thay vào đó, nhóm tạo nhóm dựa trên 8 biến đầu vào:
 Các mẫu có cùng giá trị của 8 biến đầu vào được giữ
 trong cùng một tập.
 
-Cách làm này giúp hạn chế việc cùng một mẫu xuất hiện
-đồng thời trong tập huấn luyện và tập kiểm thử.
+Cách chia theo group bảo đảm các dòng có cùng bộ giá trị
+của 8 biến đầu vào được giữ trong cùng một tập, thay vì
+bị phân tán giữa Train, Validation và Test.
 
 ## 5. Kiểm tra rò rỉ dữ liệu
 

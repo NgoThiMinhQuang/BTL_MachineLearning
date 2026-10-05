@@ -40,7 +40,10 @@ reports/tables/duplicate_rows.csv
 
 Các dòng trùng lặp chưa được xóa ngay.
 
-Nhóm tiếp tục kiểm tra và xử lý sao cho các mẫu có cùng đầu vào không xuất hiện đồng thời ở tập huấn luyện và tập kiểm thử, nhằm hạn chế rò rỉ thông tin giữa các tập dữ liệu.
+Nhóm sử dụng cơ chế chia theo nhóm dựa trên 8 biến đầu vào
+để các mẫu có cùng bộ giá trị đầu vào không bị phân tán
+giữa Train, Validation và Test, qua đó hạn chế một nguồn
+rò rỉ thông tin giữa các tập dữ liệu.
 
 ## 5. Biến mục tiêu
 
