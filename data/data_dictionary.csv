@@ -1,0 +1,14 @@
+Đề yêu cầu phải có data dictionary cho feature và target.
+Giải thích mỗi cột là gì, đơn vị gì, là đầu vào hay đầu ra.
+name,kieu_du_lieu,don_vi,vai_tro,co_san_khi_du_doan,mo_ta
+cement,float,kg/m3,feature,có,Lượng xi măng trong 1 m3 hỗn hợp bê tông
+slag,float,kg/m3,feature,có,Lượng xỉ lò cao trong 1 m3 hỗn hợp bê tông
+fly_ash,float,kg/m3,feature,có,Lượng tro bay trong 1 m3 hỗn hợp bê tông
+water,float,kg/m3,feature,có,Lượng nước trong 1 m3 hỗn hợp bê tông
+superplasticizer,float,kg/m3,feature,có,Lượng phụ gia siêu dẻo trong 1 m3 hỗn hợp bê tông
+coarse_aggregate,float,kg/m3,feature,có,Lượng cốt liệu thô trong 1 m3 hỗn hợp bê tông
+fine_aggregate,float,kg/m3,feature,có,Lượng cốt liệu mịn trong 1 m3 hỗn hợp bê tông
+age,int,ngày,feature,có,Tuổi của bê tông tính theo ngày
+strength,float,MPa,target,không,Cường độ chịu nén của bê tông
+
+

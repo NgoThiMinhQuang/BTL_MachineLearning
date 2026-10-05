@@ -78,10 +78,6 @@ bộ dữ liệu được phân phối theo giấy phép CC BY 4.0.
 
 ## 11. Ngày truy cập
 
-Ghi ngày nhóm tải dữ liệu tại đây.
-
-Ví dụ:
-
 01/10/2026
 
 ## 7. Vị trí dữ liệu gốc

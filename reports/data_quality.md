@@ -28,7 +28,11 @@ Do đó, nhóm không cần thực hiện phương pháp điền giá trị thi�
 
 ## 4. Dữ liệu trùng lặp
 
-Kết quả kiểm tra bằng hàm duplicated() của pandas phát hiện 25 lần xuất hiện trùng lặp.
+Kết quả kiểm tra bằng hàm duplicated() của pandas cho thấy
+25 bản ghi được đánh dấu là trùng lặp so với các bản ghi xuất hiện trước đó.
+
+Khi lấy toàn bộ các dòng thuộc những nhóm trùng lặp bằng
+duplicated(keep=False), có 36 dòng thuộc 11 nhóm trùng lặp hoàn toàn.
 
 Các dòng thuộc nhóm trùng lặp đã được lưu tại:
 
@@ -65,3 +69,16 @@ Tuổi nhỏ nhất:
 Tuổi lớn nhất:
 
 365 ngày
+
+## 7. Giá trị ngoại lệ
+
+Trong bước kiểm tra ban đầu, nhóm chưa tự động loại bỏ các giá trị
+cực trị trong dữ liệu.
+
+Các giá trị lớn hoặc nhỏ bất thường có thể là các cấp phối bê tông
+thực tế và việc loại bỏ tùy tiện có thể làm thay đổi phân bố dữ liệu.
+
+Do đó, các điểm cực trị sẽ được quan sát trong EDA và đặc biệt được
+phân tích lại thông qua residual sau khi xây dựng mô hình.
+
+Chỉ loại bỏ một mẫu khi có bằng chứng rõ ràng cho thấy đó là dữ liệu lỗi.
