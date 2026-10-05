@@ -1,0 +1,7 @@
+{
+  "model_type": "linear",
+  "model_path": "models/candidates/linear_regression.joblib",
+  "selection_metric": "RMSE",
+  "selected_on": "validation",
+  "random_state": 42
+}

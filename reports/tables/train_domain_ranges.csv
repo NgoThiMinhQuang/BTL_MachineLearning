@@ -1,0 +1,9 @@
+feature,train_min,train_max
+cement,102.0,540.0
+slag,0.0,359.4
+fly_ash,0.0,200.1
+water,121.75,247.0
+superplasticizer,0.0,32.2
+coarse_aggregate,801.0,1145.0
+fine_aggregate,594.0,992.6
+age,3.0,365.0

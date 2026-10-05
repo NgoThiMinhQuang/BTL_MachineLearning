@@ -62,9 +62,22 @@ Có tổng cộng 36 dòng thuộc 11 nhóm duplicate hoàn toàn.
 
 ## 8. Dữ liệu trùng lặp
 
-Phát hiện 25 lần xuất hiện trùng lặp bằng:
+Kết quả kiểm tra bằng `df.duplicated().sum()` cho thấy
+25 bản ghi được đánh dấu là trùng lặp so với bản ghi
+xuất hiện trước đó.
 
-df.duplicated().sum()
+Khi sử dụng `duplicated(keep=False)`, có tổng cộng
+36 dòng thuộc 11 nhóm trùng lặp hoàn toàn.
+
+Danh sách các dòng thuộc nhóm trùng lặp được lưu tại:
+
+`reports/tables/duplicate_rows.csv`
+
+Nhóm không tự động xóa các dòng này.
+
+Khi chia dữ liệu, các mẫu có cùng bộ giá trị của 8 biến
+đầu vào được giữ trong cùng một tập để hạn chế rò rỉ
+thông tin giữa Train, Validation và Test.
 
 Danh sách tất cả các dòng thuộc nhóm trùng lặp được lưu tại:
 

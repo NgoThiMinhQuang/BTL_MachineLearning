@@ -99,15 +99,34 @@ Ma trận tương quan được lưu tại:
 
 ## 7. Kiểm tra ngoại lệ
 
-Nhóm sử dụng quy tắc IQR để hỗ trợ nhận diện các giá trị
-nằm xa phần lớn dữ liệu.
+Nhóm sử dụng quy tắc IQR trên tập Train để hỗ trợ
+nhận diện các quan sát nằm xa phần lớn dữ liệu.
 
-Các điểm được phát hiện bởi IQR không tự động bị loại bỏ.
+Kết quả:
 
-Do đây là dữ liệu thí nghiệm bê tông, một giá trị khác biệt
-có thể vẫn là một cấp phối hợp lệ.
+- cement: 0
+- slag: 0
+- fly_ash: 0
+- water: 6
+- superplasticizer: 7
+- coarse_aggregate: 0
+- fine_aggregate: 4
+- age: 41
+- strength: 2
 
-Chỉ loại dữ liệu khi có bằng chứng cho thấy đó là lỗi dữ liệu.
+Các điểm được quy tắc IQR đánh dấu không được tự động
+coi là dữ liệu sai.
+
+Đặc biệt, biến `age` có 41 quan sát nằm ngoài ngưỡng IQR,
+nhưng những tuổi bê tông lớn vẫn có thể là dữ liệu thực tế
+hợp lệ.
+
+Vì vậy, nhóm giữ lại các quan sát này và sẽ tiếp tục xem xét
+chúng trong bước phân tích residual sau khi xây dựng mô hình.
+
+Kết quả chi tiết được lưu tại:
+
+`reports/tables/iqr_outlier_summary.csv`
 
 ## 8. Kết luận EDA
 
