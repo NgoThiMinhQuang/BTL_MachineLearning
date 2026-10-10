@@ -152,6 +152,7 @@ Chạy kiểm thử bằng lệnh:
 
 ```powershell
 python -m pytest tests/test_api.py -v
+```
 
 
 ## 6. Cài đặt môi trường
