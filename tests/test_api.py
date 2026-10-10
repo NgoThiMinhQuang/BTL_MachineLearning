@@ -567,3 +567,37 @@ def test_cors_for_go_live():
     assert response.headers.get(
         "access-control-allow-origin"
     ) == "http://127.0.0.1:5500"
+
+
+# =====================================
+# 20. KIEM THU DU DOAN CUONG DO AM
+# =====================================
+
+def test_negative_strength_prediction_rejected():
+
+    # Tat ca thong so nam trong mien Train
+    # nhung to hop nay lam mo hinh du doan am.
+    invalid_combination = {
+        "cement": 102,
+        "slag": 0,
+        "fly_ash": 0,
+        "water": 247,
+        "superplasticizer": 0,
+        "coarse_aggregate": 801,
+        "fine_aggregate": 594,
+        "age": 3,
+    }
+
+    response = client.post(
+        "/api/strength",
+        json=invalid_combination
+    )
+
+    # API phai tu choi du doan phi thuc te
+    assert response.status_code == 422
+
+    detail = response.json()["detail"]
+
+    assert isinstance(detail, str)
+
+    assert "không phù hợp về mặt vật lý" in detail

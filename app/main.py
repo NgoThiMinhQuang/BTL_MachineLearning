@@ -1,6 +1,8 @@
 
 from pathlib import Path
+from typing import Literal
 import json
+import math
 
 import joblib
 import pandas as pd
@@ -8,8 +10,9 @@ import pandas as pd
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse
-from pydantic import BaseModel, ConfigDict, Field
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, ConfigDict, Field
+
 
 # =====================================
 # 1. ĐƯỜNG DẪN VÀ CẤU HÌNH
@@ -97,7 +100,6 @@ app = FastAPI(
     version="1.0"
 )
 
-
 # Cho phép Go Live kết nối với FastAPI
 app.add_middleware(
     CORSMiddleware,
@@ -110,6 +112,7 @@ app.add_middleware(
     allow_methods=["GET", "POST"],
     allow_headers=["Content-Type"]
 )
+
 
 # =====================================
 # 6. SCHEMA DỮ LIỆU ĐẦU VÀO
@@ -284,10 +287,57 @@ def predict_strength(request: ConcreteInput):
         columns=FEATURES
     )
 
-    # Dự đoán từ Pipeline đã huấn luyện
+    # =====================================
+    # DỰ ĐOÁN TỪ PIPELINE
+    # =====================================
+
     prediction = float(
         model.predict(X)[0]
     )
+
+    # =====================================
+    # BỔ SUNG: KIỂM TRA KẾT QUẢ DỰ ĐOÁN
+    # =====================================
+
+    # Tránh hiển thị NaN hoặc Infinity
+    # như một kết quả dự đoán hợp lệ.
+    if not math.isfinite(prediction):
+
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                "Mô hình trả về giá trị không hữu hạn. "
+                "Không thể đưa ra dự đoán đáng tin cậy."
+            )
+        )
+
+    # Linear Regression có thể dự đoán
+    # cường độ <= 0 MPa.
+    #
+    # Trường hợp này không phù hợp về mặt vật lý,
+    # ngay cả khi từng biến nằm trong miền Train.
+    #
+    # Không tự chuyển số âm thành 0 vì điều đó
+    # che giấu giới hạn của mô hình.
+    if prediction <= 0:
+
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                f"Mô hình dự đoán cường độ nén "
+                f"{prediction:.2f} MPa, "
+                "không phù hợp về mặt vật lý. "
+                "Mặc dù từng thông số nằm trong miền Train, "
+                "tổ hợp cấp phối có thể nằm ngoài vùng dữ liệu "
+                "mà mô hình dự đoán đáng tin cậy. "
+                "Vui lòng kiểm tra lại các thông số và không "
+                "sử dụng kết quả này cho mục đích kỹ thuật."
+            )
+        )
+
+    # =====================================
+    # TRẢ KẾT QUẢ HỢP LỆ
+    # =====================================
 
     return {
         "predicted_strength_mpa": round(
@@ -436,13 +486,9 @@ def get_dashboard_summary():
 
     return {
         "selected_model": selected_model,
-
         "test": test_metrics,
-
         "validation": validation_results,
-
         "sgd": sgd_results,
-
         "split": {
             "train": len(train_df),
             "validation": len(val_df),
@@ -508,13 +554,9 @@ def dashboard_page():
     )
 
 
-
 # =====================================
 # 16. PHÂN TÍCH ĐỘ NHẠY - SENSITIVITY
 # =====================================
-
-from typing import Literal
-
 
 # Mở rộng schema đầu vào đã có
 class SensitivityInput(ConcreteInput):
@@ -642,6 +684,42 @@ def predict_sensitivity(request: SensitivityInput):
     )
 
     predictions = model.predict(X)
+    
+    # =====================================
+    # KIEM TRA KET QUA SENSITIVITY
+    # =====================================
+
+    # Khong cho phep NaN hoac Infinity
+    if not all(
+        math.isfinite(float(value))
+        for value in predictions
+    ):
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                "Không thể vẽ biểu đồ độ nhạy vì "
+                "mô hình tạo ra giá trị không hữu hạn."
+            )
+        )
+
+    # Khong hien thi duong du doan chua
+    # gia tri cuong do am hoac bang 0
+    if any(
+        float(value) <= 0
+        for value in predictions
+    ):
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                "Không thể vẽ toàn bộ biểu đồ độ nhạy "
+                "vì có ít nhất một điểm dự đoán "
+                "cường độ nén nhỏ hơn hoặc bằng 0 MPa. "
+                "Một số tổ hợp thông số chưa phù hợp "
+                "với phạm vi dự đoán của mô hình. "
+                "Vui lòng điều chỉnh cấp phối hoặc "
+                "tuổi bê tông rồi thử lại."
+            )
+        )
 
     # Tìm giá trị dự đoán tương ứng
     # với cấp phối người dùng đang nhập
@@ -668,17 +746,13 @@ def predict_sensitivity(request: SensitivityInput):
         "max": float(high),
 
         "baseline": {
-
             "value": float(current),
-
             "strength_mpa": float(
                 predictions[baseline_index]
             )
-
         },
 
         "points": [
-
             {
                 "value": float(amount),
                 "strength_mpa": float(prediction)
@@ -686,7 +760,5 @@ def predict_sensitivity(request: SensitivityInput):
 
             for amount, prediction
             in zip(samples, predictions)
-
         ]
-
     }
