@@ -146,8 +146,12 @@ BTL_MachineLearning/
 |-- README.md
 ```
 
-Lưu ý: Thư mục `tests/` cần được đưa lên GitHub cùng
-các thay đổi ứng dụng web mới nhất.
+Bộ kiểm thử tự động được lưu tại `tests/test_api.py`.
+
+Chạy kiểm thử bằng lệnh:
+
+```powershell
+python -m pytest tests/test_api.py -v
 
 
 ## 6. Cài đặt môi trường
