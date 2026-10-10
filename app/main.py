@@ -9,7 +9,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel, ConfigDict, Field
-
+from fastapi.middleware.cors import CORSMiddleware
 
 # =====================================
 # 1. ĐƯỜNG DẪN VÀ CẤU HÌNH
@@ -97,6 +97,19 @@ app = FastAPI(
     version="1.0"
 )
 
+
+# Cho phép Go Live kết nối với FastAPI
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://127.0.0.1:5500",
+        "http://localhost:5500",
+        "http://127.0.0.1:5501",
+        "http://localhost:5501"
+    ],
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type"]
+)
 
 # =====================================
 # 6. SCHEMA DỮ LIỆU ĐẦU VÀO

@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -5,7 +6,8 @@
 
     <meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
     <title>Dự đoán cường độ nén bê tông</title>
 
@@ -172,7 +174,7 @@
 
 
         /* =====================================
-           BỔ SUNG: THANH MENU ĐIỀU HƯỚNG
+           THANH MENU ĐIỀU HƯỚNG
            ===================================== */
 
         .navbar {
@@ -260,12 +262,12 @@
 
 <body>
 
-
     <!-- =====================================
-         BỔ SUNG: THANH MENU ĐIỀU HƯỚNG
+         1. THANH MENU ĐIỀU HƯỚNG
          ===================================== -->
 
-    <nav class="navbar" aria-label="Điều hướng chính">
+    <nav class="navbar"
+         aria-label="Điều hướng chính">
 
         <div class="brand">
             Concrete ML - Project 12
@@ -273,15 +275,13 @@
 
         <div class="nav-links">
 
-            <a href="/">
+            <a href="./index.html">
                 Trang chủ
             </a>
 
-            <a
-                href="/predict"
-                class="active"
-                aria-current="page"
-            >
+            <a href="./predict.html"
+               class="active"
+               aria-current="page">
                 Dự đoán
             </a>
 
@@ -290,51 +290,36 @@
     </nav>
 
 
-
     <!-- =====================================
-         NỘI DUNG CHÍNH - GIỮ NGUYÊN
+         2. NỘI DUNG CHÍNH
          ===================================== -->
 
     <main class="container">
 
-
         <h1>Dự đoán cường độ nén bê tông</h1>
 
-
         <p class="description">
-
             Hệ thống sử dụng mô hình Machine Learning
             để ước lượng cường độ chịu nén của bê tông
             dựa trên thành phần cấp phối và tuổi bảo dưỡng.
-
         </p>
-
-
 
         <h2>Nhập thông số cấp phối bê tông</h2>
 
-
-
         <p id="domainStatus" class="domain-status">
-
             Đang tải miền dữ liệu huấn luyện...
-
         </p>
 
 
-
         <!-- =====================================
-             FORM NHẬP 8 THÔNG SỐ
+             3. FORM NHẬP 8 THÔNG SỐ
              ===================================== -->
 
         <form id="predictForm">
 
-
             <div class="grid">
 
-
                 <!-- Xi măng -->
-
                 <div class="form-group">
 
                     <label for="cement">
@@ -354,9 +339,7 @@
                 </div>
 
 
-
                 <!-- Xỉ lò cao -->
-
                 <div class="form-group">
 
                     <label for="slag">
@@ -376,9 +359,7 @@
                 </div>
 
 
-
                 <!-- Tro bay -->
-
                 <div class="form-group">
 
                     <label for="fly_ash">
@@ -398,9 +379,7 @@
                 </div>
 
 
-
                 <!-- Nước -->
-
                 <div class="form-group">
 
                     <label for="water">
@@ -420,9 +399,7 @@
                 </div>
 
 
-
                 <!-- Phụ gia siêu dẻo -->
-
                 <div class="form-group">
 
                     <label for="superplasticizer">
@@ -442,9 +419,7 @@
                 </div>
 
 
-
                 <!-- Cốt liệu thô -->
-
                 <div class="form-group">
 
                     <label for="coarse_aggregate">
@@ -464,9 +439,7 @@
                 </div>
 
 
-
                 <!-- Cốt liệu mịn -->
-
                 <div class="form-group">
 
                     <label for="fine_aggregate">
@@ -486,9 +459,7 @@
                 </div>
 
 
-
                 <!-- Tuổi bê tông -->
-
                 <div class="form-group">
 
                     <label for="age">
@@ -507,59 +478,46 @@
 
                 </div>
 
-
             </div>
 
 
-
             <!-- =====================================
-                 NÚT DỰ ĐOÁN
+                 4. NÚT DỰ ĐOÁN
                  ===================================== -->
 
             <div class="button-container">
 
-                <button
-                    type="submit"
-                    id="predictButton"
-                >
+                <button type="submit"
+                        id="predictButton">
                     Dự đoán cường độ
                 </button>
 
             </div>
 
-
         </form>
 
 
-
         <!-- =====================================
-             KẾT QUẢ DỰ ĐOÁN
+             5. KẾT QUẢ DỰ ĐOÁN
              ===================================== -->
 
-        <section
-            class="result-box"
-            id="resultBox"
-        >
+        <section class="result-box"
+                 id="resultBox">
 
             <h3>Kết quả dự đoán</h3>
 
-            <div
-                id="result"
-                role="status"
-                aria-live="polite"
-            >
-
+            <div id="result"
+                 role="status"
+                 aria-live="polite">
                 Nhập các thông số và nhấn
                 "Dự đoán cường độ" để xem kết quả.
-
             </div>
 
         </section>
 
 
-
         <!-- =====================================
-             CẢNH BÁO SỬ DỤNG
+             6. CẢNH BÁO SỬ DỤNG
              ===================================== -->
 
         <div class="warning">
@@ -573,42 +531,79 @@
 
         </div>
 
-
     </main>
-
 
 
     <script>
 
+        // =====================================
+        // 1. CẤU HÌNH ĐỊA CHỈ API
+        // =====================================
+
+        // Chạy bằng FastAPI ở cổng 8000:
+        // API nằm cùng nguồn với giao diện.
+        //
+        // Chạy bằng Go Live ở cổng 5500, 5501...:
+        // API nằm ở http://127.0.0.1:8000.
+
+        const isFastAPI =
+            window.location.port === "8000";
+
+        const API_BASE = isFastAPI
+            ? ""
+            : "http://127.0.0.1:8000";
+
 
         // =====================================
-        // 1. TÊN TIẾNG VIỆT CỦA CÁC BIẾN
+        // 2. TÊN TIẾNG VIỆT CỦA CÁC BIẾN
         // =====================================
 
         const featureNames = {
 
             cement: "Xi măng",
-
             slag: "Xỉ lò cao",
-
             fly_ash: "Tro bay",
-
             water: "Nước",
-
             superplasticizer: "Phụ gia siêu dẻo",
-
             coarse_aggregate: "Cốt liệu thô",
-
             fine_aggregate: "Cốt liệu mịn",
-
             age: "Tuổi bê tông"
 
         };
 
 
+        // =====================================
+        // 3. ĐIỀU HƯỚNG TRANG
+        // =====================================
+
+        // Go Live giữ nguyên hai file HTML.
+        // FastAPI sử dụng hai route "/" và "/predict".
+
+        if (isFastAPI) {
+
+            const homeLink =
+                document.querySelector(
+                    '.nav-links a[href="./index.html"]'
+                );
+
+            const predictLink =
+                document.querySelector(
+                    '.nav-links a[href="./predict.html"]'
+                );
+
+            if (homeLink) {
+                homeLink.href = "/";
+            }
+
+            if (predictLink) {
+                predictLink.href = "/predict";
+            }
+
+        }
+
 
         // =====================================
-        // 2. HIỂN THỊ MIỀN DỮ LIỆU TRAIN
+        // 4. HIỂN THỊ MIỀN DỮ LIỆU TRAIN
         // =====================================
 
         async function showFeatureRanges() {
@@ -616,11 +611,14 @@
             const domainStatus =
                 document.getElementById("domainStatus");
 
-
             try {
 
-                const response = await fetch("/api/domain");
-
+                const response = await fetch(
+                    `${API_BASE}/api/domain`,
+                    {
+                        cache: "no-store"
+                    }
+                );
 
                 if (!response.ok) {
 
@@ -630,9 +628,7 @@
 
                 }
 
-
                 const data = await response.json();
-
 
                 if (!data.features) {
 
@@ -641,8 +637,6 @@
                     );
 
                 }
-
-
 
                 for (
                     const [feature, range]
@@ -653,11 +647,9 @@
                         `input[name="${feature}"]`
                     );
 
-
                     if (!input) {
                         continue;
                     }
-
 
                     const unit =
                         feature === "age"
@@ -665,85 +657,68 @@
                             : "kg/m³";
 
 
-
                     // Tránh tạo trùng thông báo
-
                     const oldHint = input.parentElement
                         .querySelector(".range-hint");
-
 
                     if (oldHint) {
                         oldHint.remove();
                     }
 
 
-
                     const hint =
                         document.createElement("small");
 
-
                     hint.className = "range-hint";
-
 
                     hint.textContent =
                         `Miền dữ liệu Train: ${range.min} – ${range.max} ${unit}`;
-
-
 
                     input.insertAdjacentElement(
                         "afterend",
                         hint
                     );
-
                 }
-
-
 
                 domainStatus.textContent =
                     "Các khoảng bên dưới được lấy từ tập Train của mô hình.";
 
+                domainStatus.classList.remove(
+                    "range-error"
+                );
 
             } catch (error) {
 
-
-                console.error(error);
-
+                console.error(
+                    "Lỗi tải miền dữ liệu:",
+                    error
+                );
 
                 domainStatus.textContent =
                     "Không tải được miền dữ liệu huấn luyện. " +
-                    "Vui lòng kiểm tra API /api/domain.";
-
+                    "Hãy kiểm tra FastAPI đang chạy ở cổng 8000 " +
+                    "và đã bật CORS.";
 
                 domainStatus.classList.add(
                     "range-error"
                 );
-
             }
-
         }
 
 
-
-
         // =====================================
-        // 3. HIỂN THỊ KẾT QUẢ / LỖI
+        // 5. HIỂN THỊ KẾT QUẢ / LỖI
         // =====================================
 
         function showResult(message, type = "") {
 
-
             const result =
                 document.getElementById("result");
-
 
             const resultBox =
                 document.getElementById("resultBox");
 
-
-
             result.textContent = message;
-
-
 
             resultBox.classList.remove(
                 "success",
@@ -751,93 +726,74 @@
                 "loading"
             );
 
-
-
             if (type) {
-
                 resultBox.classList.add(type);
-
             }
-
         }
 
 
-
-
         // =====================================
-        // 4. CHUYỂN LỖI API THÀNH TIẾNG VIỆT
+        // 6. CHUYỂN LỖI API THÀNH TIẾNG VIỆT
         // =====================================
 
         function formatApiError(detail) {
 
-
-
             // Trường hợp vượt miền dữ liệu Train
-
             if (
                 detail &&
                 Array.isArray(detail.fields)
             ) {
 
-
                 const messages = detail.fields.map(
                     field => {
 
-
                         const name =
                             featureNames[field.feature]
+                            || field.name
                             || field.feature;
 
-
+                        const unit =
+                            field.feature === "age"
+                                ? "ngày"
+                                : "kg/m³";
 
                         return (
                             `${name}: ${field.value} ` +
                             `nằm ngoài khoảng ` +
-                            `${field.min} – ${field.max}`
+                            `${field.min} – ${field.max} ${unit}`
                         );
 
                     }
                 );
 
-
-
                 return (
                     "Dữ liệu nằm ngoài miền huấn luyện:\n" +
                     messages.join("\n")
                 );
-
             }
 
 
-
             // Trường hợp validation của Pydantic
-
             if (Array.isArray(detail)) {
 
-
                 const messages = detail.map(error => {
-
 
                     const field =
                         error.loc?.at(-1) || "Dữ liệu";
 
-
                     const name =
-                        featureNames[field] || field;
-
-
+                        error.field
+                        || featureNames[field]
+                        || field;
 
                     let message =
                         error.msg || "Không hợp lệ";
-
-
 
                     if (error.type === "missing") {
 
                         message = "Không được bỏ trống";
 
                     }
-
 
                     else if (
                         error.type === "greater_than_equal"
@@ -847,7 +803,6 @@
 
                     }
 
-
                     else if (
                         error.type === "greater_than"
                     ) {
@@ -856,16 +811,15 @@
 
                     }
 
-
                     else if (
                         error.type === "int_from_float" ||
-                        error.type === "int_parsing"
+                        error.type === "int_parsing" ||
+                        error.type === "int_type"
                     ) {
 
                         message = "Phải là số nguyên";
 
                     }
-
 
                     else if (
                         error.type === "float_parsing" ||
@@ -876,70 +830,64 @@
 
                     }
 
+                    else if (
+                        error.type === "finite_number"
+                    ) {
 
+                        message = "Phải là số hữu hạn";
+
+                    }
+
+                    else if (
+                        error.type === "extra_forbidden"
+                    ) {
+
+                        message =
+                            "Trường dữ liệu không được hỗ trợ";
+
+                    }
 
                     return `${name}: ${message}`;
 
                 });
 
-
-
                 return (
                     "Vui lòng kiểm tra dữ liệu:\n" +
                     messages.join("\n")
                 );
-
             }
 
 
-
             // Lỗi khác
-
             if (typeof detail === "string") {
 
                 return detail;
 
             }
 
-
-
             return "Không thể thực hiện dự đoán.";
-
         }
 
 
-
-
         // =====================================
-        // 5. GỌI API DỰ ĐOÁN
+        // 7. GỌI API DỰ ĐOÁN
         // =====================================
 
         const form =
             document.getElementById("predictForm");
 
-
         const predictButton =
             document.getElementById("predictButton");
 
-
-
         form.addEventListener(
-
             "submit",
-
             async function(event) {
-
 
                 event.preventDefault();
 
-
-
                 const formData = new FormData(form);
 
-
                 const data = {};
-
-
 
                 for (
                     const [key, value]
@@ -950,114 +898,74 @@
 
                 }
 
-
-
                 showResult(
                     "Đang xử lý dữ liệu và dự đoán...",
                     "loading"
                 );
-
-
 
                 predictButton.disabled = true;
 
                 predictButton.textContent =
                     "Đang dự đoán...";
 
-
-
                 try {
 
-
                     const response = await fetch(
-
-                        "/api/strength",
-
+                        `${API_BASE}/api/strength`,
                         {
-
                             method: "POST",
 
                             headers: {
-
                                 "Content-Type": "application/json"
-
                             },
 
                             body: JSON.stringify(data)
-
                         }
-
                     );
 
-
-
-                    const result =
-                        await response.json();
-
-
+                    const result = await response.json();
 
                     // Có lỗi từ API
-
                     if (!response.ok) {
-
 
                         const errorMessage =
                             formatApiError(result.detail);
-
-
 
                         showResult(
                             errorMessage,
                             "error"
                         );
 
-
                         return;
-
                     }
 
-
-
                     // Dự đoán thành công
-
                     const strength =
                         result.predicted_strength_mpa;
 
-
-
                     showResult(
-
                         `Cường độ nén dự đoán: ${strength} MPa\n` +
                         `Mô hình: ${result.model}`,
-
                         "success"
-
                     );
-
 
                 } catch (error) {
 
-
-                    console.error(error);
-
-
-
-                    showResult(
-
-                        "Không thể kết nối đến API. " +
-                        "Vui lòng kiểm tra FastAPI đang chạy.",
-
-                        "error"
-
+                    console.error(
+                        "Lỗi dự đoán:",
+                        error
                     );
 
+                    showResult(
+                        "Không thể kết nối đến FastAPI. " +
+                        "Hãy kiểm tra server ở cổng 8000 " +
+                        "và cấu hình CORS trong main.py.",
+                        "error"
+                    );
 
                 } finally {
 
-
                     predictButton.disabled = false;
-
-
 
                     predictButton.textContent =
                         "Dự đoán cường độ";
@@ -1065,22 +973,16 @@
                 }
 
             }
-
         );
 
 
-
-
         // =====================================
-        // 6. TẢI MIỀN DỮ LIỆU KHI MỞ TRANG
+        // 8. TẢI MIỀN DỮ LIỆU KHI MỞ TRANG
         // =====================================
 
         showFeatureRanges();
 
-
     </script>
 
-
 </body>
-
 </html>
