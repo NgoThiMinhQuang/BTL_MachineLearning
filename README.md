@@ -160,7 +160,7 @@ Chạy toàn bộ kiểm thử bằng lệnh:
 python -m pytest tests/ -v
 ```
 
-Kết quả đã xác nhận: 42 passed, 1 warning.
+Kết quả đã xác nhận: 47 passed, 1 warning.
 
 
 ## 6. Cài đặt môi trường
@@ -667,25 +667,50 @@ python -m pytest tests/ -v
 - Kiểm tra việc đổi tên cột từ dữ liệu UCI.
 - Kiểm tra Dataset rỗng.
 
+
+**Kiểm thử bổ sung về tính an toàn của dự đoán:**
+
+- Kiểm tra API từ chối kết quả cường độ nén âm hoặc bằng 0.
+- Kiểm tra Sensitivity từ chối biểu đồ có điểm dự đoán không hợp lệ.
+- Kiểm tra Sensitivity xử lý NaN và Infinity.
+- Kiểm tra cấu hình mô hình cuối khớp với mô hình có RMSE Validation thấp nhất.
+- Đảm bảo các kiểm tra mới không làm hỏng những chức năng cũ.
+
+
 ### 15.4. Kết quả kiểm thử
 
-Kết quả đã xác nhận trên môi trường phát triển:
+Kết quả kiểm thử trên môi trường phát triển:
 
 - Python: 3.14.7
-- Tổng số trường hợp kiểm thử: 42
-- Passed: 42
+- Tổng số trường hợp kiểm thử: 47
+- Passed: 47
 - Failed: 0
 - Warning: 1
 
-Cảnh báo liên quan đến Starlette TestClient
-và không làm kiểm thử thất bại.
+Các bài kiểm thử bao gồm:
 
-Nhóm cũng đã thử tái lập quy trình Machine Learning
-trên một môi trường ảo mới, từ dữ liệu gốc
-đến kết quả đánh giá cuối cùng.
+| Nhóm kiểm thử | Số trường hợp |
+|---|---:|
+| API, dự đoán, Dashboard và Sensitivity | 28 |
+| Machine Learning Pipeline | 4 |
+| Schema dữ liệu | 15 |
+| **Tổng cộng** | **47** |
 
-Kết quả các metric và hệ số Linear Regression
-khớp với các kết quả đã lưu.
+Cảnh báo StarletteDeprecationWarning không làm
+các bài kiểm thử thất bại.
+
+Nhóm đã bổ sung kiểm tra đối với các kết quả
+dự đoán không phù hợp về mặt vật lý.
+
+API dự đoán sẽ từ chối giá trị cường độ nén
+nhỏ hơn hoặc bằng 0 MPa và giá trị không hữu hạn.
+
+API Sensitivity cũng từ chối vẽ toàn bộ biểu đồ
+nếu có điểm dự đoán không hợp lệ.
+
+Các kiểm tra này không làm thay đổi mô hình
+Linear Regression, hệ số đã huấn luyện
+hoặc các kết quả đánh giá trên tập Test.
 
 
 ## 16. Tái tạo quy trình thí nghiệm

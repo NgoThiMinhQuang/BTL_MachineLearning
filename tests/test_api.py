@@ -19,7 +19,7 @@ import pytest
 from fastapi.testclient import TestClient
 from app.main import app
 
-
+from app import main as main_module
 # =====================================
 # 1. KHỞI TẠO TEST CLIENT
 # =====================================
@@ -601,3 +601,89 @@ def test_negative_strength_prediction_rejected():
     assert isinstance(detail, str)
 
     assert "không phù hợp về mặt vật lý" in detail
+
+
+# ==========================================
+# TEST: SENSITIVITY KHONG CHAP NHAN DU DOAN AM
+# ==========================================
+
+def test_sensitivity_negative_prediction_rejected():
+
+    # Bo thong so nam trong mien Train
+    # nhung mo hinh co the du doan cuong do am
+    invalid_combination = {
+        "cement": 102,
+        "slag": 0,
+        "fly_ash": 0,
+        "water": 247,
+        "superplasticizer": 0,
+        "coarse_aggregate": 801,
+        "fine_aggregate": 594,
+        "age": 3,
+        "feature": "cement",
+    }
+
+    response = client.post(
+        "/api/sensitivity",
+        json=invalid_combination
+    )
+
+    # API phai tu choi bieu do co diem am
+    assert response.status_code == 422
+
+    detail = response.json()["detail"]
+
+    assert isinstance(detail, str)
+
+    assert "biểu đồ độ nhạy" in detail
+
+    assert "0 MPa" in detail
+
+
+# ==========================================
+# TEST: SENSITIVITY TU CHOI NaN / INFINITY
+# ==========================================
+
+@pytest.mark.parametrize(
+    "invalid_value",
+    [
+        float("nan"),
+        float("inf"),
+    ]
+)
+def test_sensitivity_nonfinite_prediction(
+    monkeypatch,
+    invalid_value
+):
+
+    # Gia lap tinh huong mo hinh tra ve
+    # NaN hoac Infinity.
+    #
+    # Khong thay doi model that tren o dia.
+    def fake_predict(X):
+        return [invalid_value] * len(X)
+
+    monkeypatch.setattr(
+        main_module.model,
+        "predict",
+        fake_predict
+    )
+
+    payload = {
+        **SAMPLE,
+        "feature": "cement"
+    }
+
+    response = client.post(
+        "/api/sensitivity",
+        json=payload
+    )
+
+    # API phai tu choi gia tri khong huu han
+    assert response.status_code == 422
+
+    detail = response.json()["detail"]
+
+    assert isinstance(detail, str)
+
+    assert "không hữu hạn" in detail

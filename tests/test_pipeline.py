@@ -138,3 +138,70 @@ def test_linear_model_reproducibility():
         rtol=1e-10,
         atol=1e-8
     )
+
+
+# ==========================================
+# TEST 4: KIEM TRA MO HINH CUOI
+# ==========================================
+
+def test_final_model_matches_validation_best():
+    import json
+
+    config_path = ROOT / "config" / "final_model.json"
+
+    comparison_path = (
+        ROOT / "reports" / "tables"
+        / "model_comparison_validation.csv"
+    )
+
+    with open(
+        config_path,
+        "r",
+        encoding="utf-8"
+    ) as file:
+        config = json.load(file)
+
+    comparison = pd.read_csv(comparison_path)
+
+    # Chon mo hinh co RMSE Validation thap nhat
+    best_row = comparison.loc[
+        comparison["RMSE"].idxmin()
+    ]
+
+    best_model = best_row["model"]
+
+    # Anh xa ten mo hinh va duong dan
+    model_mapping = {
+        "Linear Regression": (
+            "linear",
+            "models/candidates/linear_regression.joblib"
+        ),
+        "SGDRegressor": (
+            "sgd",
+            "models/candidates/sgd_best.joblib"
+        ),
+    }
+
+    assert best_model in model_mapping, (
+        "Mo hinh tot nhat chua duoc cau hinh "
+        "de trien khai."
+    )
+
+    expected_type, expected_path = (
+        model_mapping[best_model]
+    )
+
+    # Kiem tra cau hinh khop ket qua Validation
+    assert config["model_type"] == expected_type
+
+    assert (
+        config["model_path"].replace("\\", "/")
+        == expected_path
+    )
+
+    assert config["selected_on"] == "validation"
+
+    assert config["selection_metric"] == "RMSE"
+
+    # File mo hinh thuc su phai ton tai
+    assert (ROOT / config["model_path"]).is_file()
