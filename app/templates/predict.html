@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Dự đoán cường độ nén bê tông</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f2f5fa;
+            margin: 0;
+            padding: 30px;
+            color: #243247;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            background: white;
+            padding: 35px;
+            border-radius: 14px;
+            box-shadow: 0 4px 20px #00000010;
+        }
+
+        h1 {
+            color: #174a7e;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .description {
+            color: #596579;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            color: #174a7e;
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 22px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #283b50;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccd5e0;
+            border-radius: 7px;
+            font-size: 15px;
+            outline: none;
+            background: white;
+        }
+
+        input:focus {
+            border-color: #1768bb;
+            box-shadow: 0 0 0 3px #1768bb18;
+        }
+
+        .range-hint {
+            display: block;
+            margin-top: 7px;
+            font-size: 12px;
+            color: #66758c;
+            line-height: 1.5;
+        }
+
+        .range-error {
+            color: #b42318;
+        }
+
+        .button-container {
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 14px 28px;
+            background: #1768bb;
+            color: white;
+            border: none;
+            border-radius: 7px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: #125496;
+        }
+
+        button:disabled {
+            background: #8ca7c5;
+            cursor: not-allowed;
+        }
+
+        .result-box {
+            margin-top: 30px;
+            padding: 22px;
+            background: #edf5ff;
+            border: 1px solid #d5e7fa;
+            border-radius: 10px;
+        }
+
+        .result-box h3 {
+            color: #174a7e;
+            margin-top: 0;
+        }
+
+        #result {
+            font-size: 17px;
+            line-height: 1.7;
+            white-space: pre-line;
+        }
+
+        .result-box.success {
+            background: #e9f8ee;
+            border-color: #a8dcb8;
+        }
+
+        .result-box.error {
+            background: #fff0ef;
+            border-color: #f0aaa4;
+        }
+
+        .result-box.loading {
+            background: #edf5ff;
+        }
+
+        .warning {
+            margin-top: 25px;
+            padding: 15px;
+            background: #fff8e6;
+            border-left: 4px solid #e6a700;
+            border-radius: 5px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #775a18;
+        }
+
+        .domain-status {
+            margin-bottom: 18px;
+            font-size: 13px;
+            color: #66758c;
+        }
+
+
+        /* =====================================
+           BỔ SUNG: THANH MENU ĐIỀU HƯỚNG
+           ===================================== */
+
+        .navbar {
+            max-width: 1000px;
+            margin: 0 auto 20px auto;
+            padding: 16px 24px;
+            background: #174a7e;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .navbar .brand {
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .navbar .nav-links {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            font-size: 15px;
+        }
+
+        .navbar a:hover {
+            text-decoration: underline;
+        }
+
+        .navbar a.active {
+            font-weight: bold;
+            text-decoration: underline;
+            text-underline-offset: 5px;
+        }
+
+
+        /* =====================================
+           RESPONSIVE CHO ĐIỆN THOẠI
+           ===================================== */
+
+        @media (max-width: 650px) {
+
+            body {
+                padding: 12px;
+            }
+
+            .container {
+                padding: 20px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 25px;
+            }
+
+            button {
+                width: 100%;
+            }
+
+            .navbar {
+                padding: 16px;
+            }
+
+            .navbar .brand {
+                font-size: 16px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- =====================================
+         BỔ SUNG: THANH MENU ĐIỀU HƯỚNG
+         ===================================== -->
+
+    <nav class="navbar" aria-label="Điều hướng chính">
+
+        <div class="brand">
+            Concrete ML - Project 12
+        </div>
+
+        <div class="nav-links">
+
+            <a href="/">
+                Trang chủ
+            </a>
+
+            <a
+                href="/predict"
+                class="active"
+                aria-current="page"
+            >
+                Dự đoán
+            </a>
+
+        </div>
+
+    </nav>
+
+
+
+    <!-- =====================================
+         NỘI DUNG CHÍNH - GIỮ NGUYÊN
+         ===================================== -->
+
+    <main class="container">
+
+
+        <h1>Dự đoán cường độ nén bê tông</h1>
+
+
+        <p class="description">
+
+            Hệ thống sử dụng mô hình Machine Learning
+            để ước lượng cường độ chịu nén của bê tông
+            dựa trên thành phần cấp phối và tuổi bảo dưỡng.
+
+        </p>
+
+
+
+        <h2>Nhập thông số cấp phối bê tông</h2>
+
+
+
+        <p id="domainStatus" class="domain-status">
+
+            Đang tải miền dữ liệu huấn luyện...
+
+        </p>
+
+
+
+        <!-- =====================================
+             FORM NHẬP 8 THÔNG SỐ
+             ===================================== -->
+
+        <form id="predictForm">
+
+
+            <div class="grid">
+
+
+                <!-- Xi măng -->
+
+                <div class="form-group">
+
+                    <label for="cement">
+                        Xi măng (kg/m³)
+                    </label>
+
+                    <input
+                        id="cement"
+                        name="cement"
+                        type="number"
+                        step="any"
+                        min="0"
+                        value="300"
+                        required
+                    >
+
+                </div>
+
+
+
+                <!-- Xỉ lò cao -->
+
+                <div class="form-group">
+
+                    <label for="slag">
+                        Xỉ lò cao (kg/m³)
+                    </label>
+
+                    <input
+                        id="slag"
+                        name="slag"
+                        type="number"
+                        step="any"
+                        min="0"
+                        value="60"
+                        required
+                    >
+
+                </div>
+
+
+
+                <!-- Tro bay -->
+
+                <div class="form-group">
+
+                    <label for="fly_ash">
+                        Tro bay (kg/m³)
+                    </label>
+
+                    <input
+                        id="fly_ash"
+                        name="fly_ash"
+                        type="number"
+                        step="any"
+                        min="0"
+                        value="80"
+                        required
+                    >
+
+                </div>
+
+
+
+                <!-- Nước -->
+
+                <div class="form-group">
+
+                    <label for="water">
+                        Nước (kg/m³)
+                    </label>
+
+                    <input
+                        id="water"
+                        name="water"
+                        type="number"
+                        step="any"
+                        min="0"
+                        value="180"
+                        required
+                    >
+
+                </div>
+
+
+
+                <!-- Phụ gia siêu dẻo -->
+
+                <div class="form-group">
+
+                    <label for="superplasticizer">
+                        Phụ gia siêu dẻo (kg/m³)
+                    </label>
+
+                    <input
+                        id="superplasticizer"
+                        name="superplasticizer"
+                        type="number"
+                        step="any"
+                        min="0"
+                        value="7"
+                        required
+                    >
+
+                </div>
+
+
+
+                <!-- Cốt liệu thô -->
+
+                <div class="form-group">
+
+                    <label for="coarse_aggregate">
+                        Cốt liệu thô (kg/m³)
+                    </label>
+
+                    <input
+                        id="coarse_aggregate"
+                        name="coarse_aggregate"
+                        type="number"
+                        step="any"
+                        min="0"
+                        value="1000"
+                        required
+                    >
+
+                </div>
+
+
+
+                <!-- Cốt liệu mịn -->
+
+                <div class="form-group">
+
+                    <label for="fine_aggregate">
+                        Cốt liệu mịn (kg/m³)
+                    </label>
+
+                    <input
+                        id="fine_aggregate"
+                        name="fine_aggregate"
+                        type="number"
+                        step="any"
+                        min="0"
+                        value="800"
+                        required
+                    >
+
+                </div>
+
+
+
+                <!-- Tuổi bê tông -->
+
+                <div class="form-group">
+
+                    <label for="age">
+                        Tuổi bê tông (ngày)
+                    </label>
+
+                    <input
+                        id="age"
+                        name="age"
+                        type="number"
+                        step="1"
+                        min="1"
+                        value="28"
+                        required
+                    >
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- =====================================
+                 NÚT DỰ ĐOÁN
+                 ===================================== -->
+
+            <div class="button-container">
+
+                <button
+                    type="submit"
+                    id="predictButton"
+                >
+                    Dự đoán cường độ
+                </button>
+
+            </div>
+
+
+        </form>
+
+
+
+        <!-- =====================================
+             KẾT QUẢ DỰ ĐOÁN
+             ===================================== -->
+
+        <section
+            class="result-box"
+            id="resultBox"
+        >
+
+            <h3>Kết quả dự đoán</h3>
+
+            <div
+                id="result"
+                role="status"
+                aria-live="polite"
+            >
+
+                Nhập các thông số và nhấn
+                "Dự đoán cường độ" để xem kết quả.
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =====================================
+             CẢNH BÁO SỬ DỤNG
+             ===================================== -->
+
+        <div class="warning">
+
+            <strong>Lưu ý:</strong>
+
+            Kết quả chỉ phục vụ mục đích học tập
+            và khảo sát. Không thay thế thí nghiệm
+            xác định cường độ nén bê tông theo tiêu chuẩn
+            hoặc quyết định kỹ thuật kết cấu.
+
+        </div>
+
+
+    </main>
+
+
+
+    <script>
+
+
+        // =====================================
+        // 1. TÊN TIẾNG VIỆT CỦA CÁC BIẾN
+        // =====================================
+
+        const featureNames = {
+
+            cement: "Xi măng",
+
+            slag: "Xỉ lò cao",
+
+            fly_ash: "Tro bay",
+
+            water: "Nước",
+
+            superplasticizer: "Phụ gia siêu dẻo",
+
+            coarse_aggregate: "Cốt liệu thô",
+
+            fine_aggregate: "Cốt liệu mịn",
+
+            age: "Tuổi bê tông"
+
+        };
+
+
+
+        // =====================================
+        // 2. HIỂN THỊ MIỀN DỮ LIỆU TRAIN
+        // =====================================
+
+        async function showFeatureRanges() {
+
+            const domainStatus =
+                document.getElementById("domainStatus");
+
+
+            try {
+
+                const response = await fetch("/api/domain");
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        "Không thể tải miền dữ liệu"
+                    );
+
+                }
+
+
+                const data = await response.json();
+
+
+                if (!data.features) {
+
+                    throw new Error(
+                        "Dữ liệu miền huấn luyện không hợp lệ"
+                    );
+
+                }
+
+
+
+                for (
+                    const [feature, range]
+                    of Object.entries(data.features)
+                ) {
+
+                    const input = document.querySelector(
+                        `input[name="${feature}"]`
+                    );
+
+
+                    if (!input) {
+                        continue;
+                    }
+
+
+                    const unit =
+                        feature === "age"
+                            ? "ngày"
+                            : "kg/m³";
+
+
+
+                    // Tránh tạo trùng thông báo
+
+                    const oldHint = input.parentElement
+                        .querySelector(".range-hint");
+
+
+                    if (oldHint) {
+                        oldHint.remove();
+                    }
+
+
+
+                    const hint =
+                        document.createElement("small");
+
+
+                    hint.className = "range-hint";
+
+
+                    hint.textContent =
+                        `Miền dữ liệu Train: ${range.min} – ${range.max} ${unit}`;
+
+
+
+                    input.insertAdjacentElement(
+                        "afterend",
+                        hint
+                    );
+
+                }
+
+
+
+                domainStatus.textContent =
+                    "Các khoảng bên dưới được lấy từ tập Train của mô hình.";
+
+
+            } catch (error) {
+
+
+                console.error(error);
+
+
+                domainStatus.textContent =
+                    "Không tải được miền dữ liệu huấn luyện. " +
+                    "Vui lòng kiểm tra API /api/domain.";
+
+
+                domainStatus.classList.add(
+                    "range-error"
+                );
+
+            }
+
+        }
+
+
+
+
+        // =====================================
+        // 3. HIỂN THỊ KẾT QUẢ / LỖI
+        // =====================================
+
+        function showResult(message, type = "") {
+
+
+            const result =
+                document.getElementById("result");
+
+
+            const resultBox =
+                document.getElementById("resultBox");
+
+
+
+            result.textContent = message;
+
+
+
+            resultBox.classList.remove(
+                "success",
+                "error",
+                "loading"
+            );
+
+
+
+            if (type) {
+
+                resultBox.classList.add(type);
+
+            }
+
+        }
+
+
+
+
+        // =====================================
+        // 4. CHUYỂN LỖI API THÀNH TIẾNG VIỆT
+        // =====================================
+
+        function formatApiError(detail) {
+
+
+
+            // Trường hợp vượt miền dữ liệu Train
+
+            if (
+                detail &&
+                Array.isArray(detail.fields)
+            ) {
+
+
+                const messages = detail.fields.map(
+                    field => {
+
+
+                        const name =
+                            featureNames[field.feature]
+                            || field.feature;
+
+
+
+                        return (
+                            `${name}: ${field.value} ` +
+                            `nằm ngoài khoảng ` +
+                            `${field.min} – ${field.max}`
+                        );
+
+                    }
+                );
+
+
+
+                return (
+                    "Dữ liệu nằm ngoài miền huấn luyện:\n" +
+                    messages.join("\n")
+                );
+
+            }
+
+
+
+            // Trường hợp validation của Pydantic
+
+            if (Array.isArray(detail)) {
+
+
+                const messages = detail.map(error => {
+
+
+                    const field =
+                        error.loc?.at(-1) || "Dữ liệu";
+
+
+                    const name =
+                        featureNames[field] || field;
+
+
+
+                    let message =
+                        error.msg || "Không hợp lệ";
+
+
+
+                    if (error.type === "missing") {
+
+                        message = "Không được bỏ trống";
+
+                    }
+
+
+                    else if (
+                        error.type === "greater_than_equal"
+                    ) {
+
+                        message = "Không được nhập số âm";
+
+                    }
+
+
+                    else if (
+                        error.type === "greater_than"
+                    ) {
+
+                        message = "Phải lớn hơn 0";
+
+                    }
+
+
+                    else if (
+                        error.type === "int_from_float" ||
+                        error.type === "int_parsing"
+                    ) {
+
+                        message = "Phải là số nguyên";
+
+                    }
+
+
+                    else if (
+                        error.type === "float_parsing" ||
+                        error.type === "float_type"
+                    ) {
+
+                        message = "Phải là số hợp lệ";
+
+                    }
+
+
+
+                    return `${name}: ${message}`;
+
+                });
+
+
+
+                return (
+                    "Vui lòng kiểm tra dữ liệu:\n" +
+                    messages.join("\n")
+                );
+
+            }
+
+
+
+            // Lỗi khác
+
+            if (typeof detail === "string") {
+
+                return detail;
+
+            }
+
+
+
+            return "Không thể thực hiện dự đoán.";
+
+        }
+
+
+
+
+        // =====================================
+        // 5. GỌI API DỰ ĐOÁN
+        // =====================================
+
+        const form =
+            document.getElementById("predictForm");
+
+
+        const predictButton =
+            document.getElementById("predictButton");
+
+
+
+        form.addEventListener(
+
+            "submit",
+
+            async function(event) {
+
+
+                event.preventDefault();
+
+
+
+                const formData = new FormData(form);
+
+
+                const data = {};
+
+
+
+                for (
+                    const [key, value]
+                    of formData.entries()
+                ) {
+
+                    data[key] = Number(value);
+
+                }
+
+
+
+                showResult(
+                    "Đang xử lý dữ liệu và dự đoán...",
+                    "loading"
+                );
+
+
+
+                predictButton.disabled = true;
+
+                predictButton.textContent =
+                    "Đang dự đoán...";
+
+
+
+                try {
+
+
+                    const response = await fetch(
+
+                        "/api/strength",
+
+                        {
+
+                            method: "POST",
+
+                            headers: {
+
+                                "Content-Type": "application/json"
+
+                            },
+
+                            body: JSON.stringify(data)
+
+                        }
+
+                    );
+
+
+
+                    const result =
+                        await response.json();
+
+
+
+                    // Có lỗi từ API
+
+                    if (!response.ok) {
+
+
+                        const errorMessage =
+                            formatApiError(result.detail);
+
+
+
+                        showResult(
+                            errorMessage,
+                            "error"
+                        );
+
+
+                        return;
+
+                    }
+
+
+
+                    // Dự đoán thành công
+
+                    const strength =
+                        result.predicted_strength_mpa;
+
+
+
+                    showResult(
+
+                        `Cường độ nén dự đoán: ${strength} MPa\n` +
+                        `Mô hình: ${result.model}`,
+
+                        "success"
+
+                    );
+
+
+                } catch (error) {
+
+
+                    console.error(error);
+
+
+
+                    showResult(
+
+                        "Không thể kết nối đến API. " +
+                        "Vui lòng kiểm tra FastAPI đang chạy.",
+
+                        "error"
+
+                    );
+
+
+                } finally {
+
+
+                    predictButton.disabled = false;
+
+
+
+                    predictButton.textContent =
+                        "Dự đoán cường độ";
+
+                }
+
+            }
+
+        );
+
+
+
+
+        // =====================================
+        // 6. TẢI MIỀN DỮ LIỆU KHI MỞ TRANG
+        // =====================================
+
+        showFeatureRanges();
+
+
+    </script>
+
+
+</body>
+
+</html>

@@ -1,15 +1,33 @@
 from pathlib import Path
+
 import pandas as pd
 
 
-# Thu muc goc cua project
+# ==========================================
+# DUONG DAN PROJECT
+# ==========================================
+
 ROOT_DIR = Path(__file__).resolve().parents[1]
 
-# Duong dan den file du lieu goc
-DATA_PATH = ROOT_DIR / "data" / "raw" / "Concrete_Data.xls"
+XLS_PATH = (
+    ROOT_DIR
+    / "data"
+    / "raw"
+    / "Concrete_Data.xls"
+)
+
+DOWNLOADED_CSV_PATH = (
+    ROOT_DIR
+    / "data"
+    / "raw"
+    / "Concrete_Data_downloaded.csv"
+)
 
 
-# Ten cac cot su dung trong toan bo project
+# ==========================================
+# TEN COT CHUAN CUA PROJECT
+# ==========================================
+
 COLUMN_NAMES = [
     "cement",
     "slag",
@@ -23,57 +41,131 @@ COLUMN_NAMES = [
 ]
 
 
-def load_data():
-    """
-    Doc bo du lieu goc Concrete Compressive Strength.
-    """
-    df = pd.read_excel(DATA_PATH)
-    return df
+# ==========================================
+# LOAD DATA
+# ==========================================
 
+def load_data():
+
+    # Truong hop 1:
+    # File XLS goc dang ton tai
+    if XLS_PATH.exists():
+
+        print(
+            "Dang doc du lieu tu Concrete_Data.xls"
+        )
+
+        return pd.read_excel(
+            XLS_PATH
+        )
+
+    # Truong hop 2:
+    # Khong co XLS nhung da chay download_data.py
+    if DOWNLOADED_CSV_PATH.exists():
+
+        print(
+            "Dang doc du lieu tu Concrete_Data_downloaded.csv"
+        )
+
+        return pd.read_csv(
+            DOWNLOADED_CSV_PATH
+        )
+
+    # Khong tim thay du lieu
+    raise FileNotFoundError(
+        "\nKhong tim thay file du lieu.\n"
+        "Hay chay lenh:\n"
+        "python src/download_data.py"
+    )
+
+
+# ==========================================
+# DOI TEN COT
+# ==========================================
 
 def rename_columns(df):
-    """
-    Doi ten cot goc thanh ten ngan gon de su dung trong code.
-    """
+
     df = df.copy()
+
+    if df.shape[1] != len(
+        COLUMN_NAMES
+    ):
+
+        raise ValueError(
+            (
+                "Dataset phai co 9 cot, "
+                f"nhung hien co {df.shape[1]} cot."
+            )
+        )
 
     df.columns = COLUMN_NAMES
 
     return df
 
 
+# ==========================================
+# GET DATA
+# ==========================================
+
 def get_data():
-    """
-    Tra ve bo du lieu da duoc doi ten cot.
-    """
+
     df = load_data()
 
-    df = rename_columns(df)
+    df = rename_columns(
+        df
+    )
 
     return df
 
 
-if __name__ == "__main__":
+# ==========================================
+# CHAY TRUC TIEP
+# ==========================================
+
+def main():
 
     df = get_data()
 
-    print("===== 5 DONG DAU TIEN =====")
-    print(df.head())
+    print(
+        "\n===== 5 DONG DAU ====="
+    )
 
-    print("\n===== KICH THUOC DU LIEU =====")
-    print(df.shape)
+    print(
+        df.head()
+    )
 
-    print("\n===== TEN CAC COT =====")
-    print(df.columns.tolist())
+    print(
+        "\n===== KICH THUOC ====="
+    )
 
-    print("\n===== THONG TIN DU LIEU =====")
-    df.info()
+    print(
+        df.shape
+    )
 
-    print("\n===== THONG KE MO TA =====")
-    print(df.describe())
+    print(
+        "\n===== TEN COT ====="
+    )
 
-    print("\n===== GIA TRI THIEU =====")
-    print(df.isnull().sum())
+    print(
+        df.columns.tolist()
+    )
 
-    print("\n===== SO DONG TRUNG LAP =====")
-    print(df.duplicated().sum())
+    print(
+        "\n===== MISSING VALUES ====="
+    )
+
+    print(
+        df.isnull().sum()
+    )
+
+    print(
+        "\n===== DUPLICATE ====="
+    )
+
+    print(
+        df.duplicated().sum()
+    )
+
+
+if __name__ == "__main__":
+    main()
