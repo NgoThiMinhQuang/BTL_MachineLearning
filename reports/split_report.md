@@ -88,3 +88,119 @@ Kết quả:
 
 Không phát hiện group có cùng bộ giá trị đầu vào
 xuất hiện đồng thời trong nhiều tập dữ liệu.
+
+## 6. Phân tích bổ sung về cách tạo nhóm dữ liệu
+
+### 6.1. Cách chia dữ liệu ban đầu
+
+Trong quá trình xây dựng mô hình, nhóm sử dụng
+GroupShuffleSplit với random_state = 42.
+
+Group được tạo dựa trên 8 biến đầu vào:
+
+- cement
+- slag
+- fly_ash
+- water
+- superplasticizer
+- coarse_aggregate
+- fine_aggregate
+- age
+
+Cách chia này bảo đảm những mẫu có cùng toàn bộ
+8 giá trị đầu vào không xuất hiện đồng thời
+trong Train, Validation và Test.
+
+Tuy nhiên, những mẫu có cùng 7 thành phần vật liệu
+nhưng khác tuổi bê tông vẫn có thể nằm ở các tập khác nhau.
+
+### 6.2. Kiểm tra trùng cấp phối vật liệu
+
+Nhóm thực hiện kiểm tra bổ sung bằng script:
+
+`src/check_group_overlap.py`
+
+Kết quả kiểm tra:
+
+| Cặp dữ liệu | Trùng nhóm 8 biến | Trùng cấp phối 7 thành phần |
+|---|---:|---:|
+| Train - Validation | 0 | 83 |
+| Train - Test | 0 | 89 |
+| Validation - Test | 0 | 42 |
+
+Kết quả cho thấy không có nhóm trùng đủ 8 biến
+giữa các tập.
+
+Tuy nhiên, vẫn tồn tại cấp phối vật liệu giống nhau
+được quan sát ở những tuổi bê tông khác nhau.
+
+Điều này không tự động chứng minh có target leakage,
+nhưng là một giới hạn cần lưu ý khi diễn giải
+khả năng tổng quát hóa của mô hình.
+
+### 6.3. Phạm vi đánh giá của tập Test
+
+Kết quả Test ban đầu được sử dụng để đánh giá
+mô hình trên những mẫu có bộ 8 đặc trưng đầu vào
+không trùng hoàn toàn với tập Train.
+
+Tuy nhiên, kết quả này không đại diện cho một
+phép đánh giá độc lập hoàn toàn theo cấp phối vật liệu.
+
+Vì vậy, nhóm không khẳng định kết quả Test ban đầu
+phản ánh đầy đủ khả năng dự đoán cấp phối
+hoàn toàn mới.
+
+### 6.4. Đánh giá bổ sung theo 7 thành phần
+
+Để khảo sát khả năng tổng quát hóa đối với
+các cấp phối mới, nhóm bổ sung thí nghiệm
+Group Cross-Validation trên tập Train ban đầu.
+
+Group được xây dựng từ 7 thành phần vật liệu,
+không bao gồm age.
+
+Age vẫn được sử dụng làm đặc trưng đầu vào
+của mô hình hồi quy.
+
+Nhóm sử dụng 5-fold GroupKFold với ba seed:
+11, 42 và 2026.
+
+Tổng cộng thực hiện 15 lượt đánh giá.
+
+Trong mỗi lượt, các cấp phối thuộc phần validation
+không xuất hiện trong phần train của cùng fold.
+
+Kết quả trung bình:
+
+- MAE: 8.6075 MPa
+- RMSE: 10.8337 MPa
+- R²: 0.5809
+
+Kết quả chi tiết được lưu tại:
+
+`reports/tables/linear_stability_group7_cv.csv`
+
+Thí nghiệm này chỉ sử dụng tập Train gốc,
+không sử dụng tập Test gốc.
+
+Các kết quả được dùng để phân tích độ ổn định
+và giới hạn tổng quát hóa, không dùng để điều chỉnh
+mô hình cuối đã lựa chọn.
+
+### 6.5. Kết luận
+
+Cách chia theo 8 đặc trưng ban đầu giúp tránh
+những mẫu có đầu vào hoàn toàn giống nhau
+xuất hiện ở nhiều tập dữ liệu.
+
+Đánh giá bổ sung theo 7 thành phần cung cấp
+thêm thông tin về khả năng dự đoán đối với
+cấp phối chưa xuất hiện trong phần huấn luyện.
+
+Nhóm trình bày riêng hai phương pháp đánh giá
+vì chúng đo lường những điều kiện tổng quát hóa
+khác nhau.
+
+Đây là một giới hạn của thiết kế đánh giá
+được ghi nhận và công bố minh bạch trong báo cáo.

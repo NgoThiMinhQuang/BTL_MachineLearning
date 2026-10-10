@@ -261,7 +261,7 @@ Biểu đồ loss theo epoch được lưu tại:
 Linear Regression có RMSE Validation nhỏ nhất nên được
 lựa chọn làm mô hình cuối cùng.
 
-## 6. Hệ số sau chuẩn hóa
+
 
 
 ## 6. Phân tích và diễn giải hệ số hồi quy
@@ -336,3 +336,90 @@ bê tông không hoàn toàn tuyến tính.
 Do đó, việc giải thích các hệ số cần kết hợp
 với EDA, phân tích residual và hiểu biết về
 giới hạn của dữ liệu.
+
+## 7. Đánh giá độ ổn định bằng Group Cross-Validation
+
+### 7.1. Mục đích
+
+Ngoài việc đánh giá mô hình trên tập Validation và Test,
+nhóm bổ sung thí nghiệm Group Cross-Validation để khảo sát
+độ ổn định của Linear Regression đối với các cấp phối
+bê tông chưa xuất hiện trong phần huấn luyện của mỗi fold.
+
+### 7.2. Phương pháp thực hiện
+
+Thí nghiệm chỉ sử dụng tập Train ban đầu gồm 721 mẫu.
+
+Nhóm tạo group dựa trên 7 thành phần vật liệu:
+
+- cement
+- slag
+- fly_ash
+- water
+- superplasticizer
+- coarse_aggregate
+- fine_aggregate
+
+Biến age không được sử dụng để tạo group nhưng vẫn được
+giữ làm đặc trưng đầu vào của mô hình.
+
+Nhóm sử dụng GroupKFold với:
+
+- Số fold: 5
+- Các random_state: 11, 42, 2026
+- Tổng số lượt đánh giá: 15
+
+Ở mỗi fold, các mẫu có cùng cấp phối được giữ trong
+cùng một phía của phép chia train/validation.
+
+StandardScaler và LinearRegression được huấn luyện lại
+riêng trên phần train của từng fold.
+
+Tập Test gốc không tham gia thí nghiệm.
+
+### 7.3. Kết quả thực nghiệm
+
+| Seed | RMSE trung bình | R² trung bình |
+|---|---:|---:|
+| 11 | 10.7697 | 0.5874 |
+| 42 | 10.8591 | 0.5739 |
+| 2026 | 10.8723 | 0.5814 |
+
+Tổng hợp 15 lượt đánh giá:
+
+| Chỉ số | Trung bình | Độ lệch chuẩn |
+|---|---:|---:|
+| MAE (MPa) | 8.6075 | 0.7383 |
+| RMSE (MPa) | 10.8337 | 0.8867 |
+| R² | 0.5809 | 0.0517 |
+
+Kết quả chi tiết được lưu tại:
+
+`reports/tables/linear_stability_group7_cv.csv`
+
+### 7.4. Phân tích và kết luận
+
+RMSE trung bình giữa ba seed tương đối gần nhau,
+cho thấy kết quả không thay đổi quá lớn khi thay đổi
+cách phân fold trong thí nghiệm này.
+
+Tuy nhiên, sự dao động giữa các fold cho thấy chất lượng
+dự đoán vẫn phụ thuộc vào những cấp phối được chọn
+để huấn luyện và đánh giá.
+
+Đánh giá theo 7 thành phần được thực hiện nhằm khảo sát
+khả năng tổng quát hóa đối với cấp phối chưa xuất hiện
+trong phần huấn luyện của fold.
+
+Trong khi đó, cách chia Train/Validation/Test ban đầu
+sử dụng nhóm theo cả 8 biến đầu vào, bao gồm age.
+
+Vì vậy, kết quả Test ban đầu không nên được diễn giải
+như một đánh giá hoàn toàn độc lập theo cấp phối vật liệu.
+
+Các chỉ số Cross-Validation chỉ là kết quả bổ sung
+để đánh giá độ ổn định, không được sử dụng để thay đổi
+mô hình cuối đã lựa chọn hoặc tinh chỉnh theo Test.
+
+Độ lệch chuẩn được báo cáo mang tính mô tả và không
+được coi là khoảng tin cậy thống kê.

@@ -1,6 +1,8 @@
+
+
 from pathlib import Path
 
-from data import load_data, rename_columns
+from data import get_data
 
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
@@ -19,9 +21,7 @@ REPORT_DIR.mkdir(
 
 def main():
 
-    df = load_data()
-
-    df = rename_columns(df)
+    df = get_data()
 
     # Tim tat ca cac dong nam trong nhom duplicate hoan toan
     duplicate_rows = df[

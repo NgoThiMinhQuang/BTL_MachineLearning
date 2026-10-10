@@ -138,21 +138,29 @@ BTL_MachineLearning/
 |   |-- experiment_sgd.py
 |   |-- compare_models.py
 |   |-- evaluate_final.py
+|   |-- check_group_overlap.py
+|   |-- evaluate_stability.py
 |
 |-- tests/
 |   |-- test_api.py
+|   |-- test_pipeline.py
+|   |-- test_schema.py
 |
 |-- requirements.txt
 |-- README.md
 ```
 
-Bộ kiểm thử tự động được lưu tại `tests/test_api.py`.
 
-Chạy kiểm thử bằng lệnh:
+Bộ kiểm thử tự động được lưu trong thư mục `tests/`,
+bao gồm kiểm thử API, Pipeline và Schema dữ liệu.
+
+Chạy toàn bộ kiểm thử bằng lệnh:
 
 ```powershell
-python -m pytest tests/test_api.py -v
+python -m pytest tests/ -v
 ```
+
+Kết quả đã xác nhận: 42 passed, 1 warning.
 
 
 ## 6. Cài đặt môi trường
@@ -613,48 +621,71 @@ Các API có thể được xem và thử tại:
 http://127.0.0.1:8000/docs
 
 
+
 ## 15. Kiểm thử tự động
 
-Bộ kiểm thử nằm tại:
+Project sử dụng pytest để kiểm tra hoạt động
+của API, quy trình Machine Learning và dữ liệu.
 
-`tests/test_api.py`
+### 15.1. Các file kiểm thử
 
-Cài thư viện:
+- `tests/test_api.py`: Kiểm thử API và website.
+- `tests/test_pipeline.py`: Kiểm thử Pipeline học máy.
+- `tests/test_schema.py`: Kiểm tra Schema dữ liệu.
+
+### 15.2. Chạy toàn bộ kiểm thử
+
+Sau khi cài đặt các thư viện từ requirements.txt,
+chạy lệnh tại thư mục gốc:
 
 ```powershell
-python -m pip install pytest httpx
+python -m pytest tests/ -v
 ```
 
-Chạy kiểm thử:
+### 15.3. Nội dung kiểm thử
 
-```powershell
-python -m pytest tests/test_api.py -v
-```
-
-Bộ kiểm thử bao gồm:
-
-- Kiểm tra các route web.
-- Kiểm tra API health.
+**API và website:**
+- Kiểm tra các route.
+- Kiểm tra dữ liệu đầu vào hợp lệ và không hợp lệ.
+- Kiểm tra API dự đoán.
 - Kiểm tra miền dữ liệu Train.
-- Kiểm tra dự đoán hợp lệ.
-- Kiểm tra dữ liệu âm, thiếu, sai kiểu.
-- Kiểm tra dữ liệu ngoài miền Train.
-- Kiểm tra kết quả Dashboard.
-- Kiểm tra các biểu đồ.
-- Kiểm tra phân tích độ nhạy.
-- Kiểm tra CORS cho Go Live.
+- Kiểm tra Dashboard và biểu đồ.
+- Kiểm tra chức năng Sensitivity.
+- Kiểm tra CORS.
 
-Kết quả kiểm thử gần nhất trên môi trường phát triển:
+**Machine Learning Pipeline:**
+- Kiểm tra không trùng nhóm 8 đặc trưng giữa các tập.
+- Kiểm tra StandardScaler được fit trên Train.
+- Kiểm tra khả năng tái lập Linear Regression.
 
-```text
-24 passed, 1 warning
-```
+**Schema dữ liệu:**
+- Kiểm tra dữ liệu hợp lệ.
+- Kiểm tra dữ liệu âm, thiếu và sai kiểu.
+- Kiểm tra NaN và Infinity.
+- Kiểm tra tuổi bê tông không hợp lệ.
+- Kiểm tra tên và thứ tự cột.
+- Kiểm tra việc đổi tên cột từ dữ liệu UCI.
+- Kiểm tra Dataset rỗng.
 
-Các bài kiểm thử đã chạy thành công.
-Cảnh báo hiện tại liên quan đến thư viện Starlette TestClient
-và không làm bài kiểm thử thất bại.
+### 15.4. Kết quả kiểm thử
 
-Kết quả trên môi trường khác cần được chạy lại để xác nhận.
+Kết quả đã xác nhận trên môi trường phát triển:
+
+- Python: 3.14.7
+- Tổng số trường hợp kiểm thử: 42
+- Passed: 42
+- Failed: 0
+- Warning: 1
+
+Cảnh báo liên quan đến Starlette TestClient
+và không làm kiểm thử thất bại.
+
+Nhóm cũng đã thử tái lập quy trình Machine Learning
+trên một môi trường ảo mới, từ dữ liệu gốc
+đến kết quả đánh giá cuối cùng.
+
+Kết quả các metric và hệ số Linear Regression
+khớp với các kết quả đã lưu.
 
 
 ## 16. Tái tạo quy trình thí nghiệm
@@ -693,6 +724,46 @@ Lưu ý:
 - Không dùng tập Test để lựa chọn hoặc tinh chỉnh mô hình.
 
 
+### 16.1. Đánh giá độ ổn định theo cấp phối
+
+Ngoài quy trình chính, nhóm thực hiện
+Group Cross-Validation để đánh giá khả năng
+tổng quát hóa với cấp phối vật liệu mới.
+
+Chạy lệnh:
+
+```powershell
+python src/check_group_overlap.py
+python src/evaluate_stability.py
+```
+
+Thí nghiệm sử dụng:
+
+- Tập Train gốc gồm 721 mẫu.
+- Group theo 7 thành phần vật liệu, không gồm age.
+- GroupKFold với 5 fold.
+- Ba seed: 11, 42 và 2026.
+- Tổng cộng 15 lượt đánh giá.
+
+Kết quả trung bình:
+
+| Metric | Mean | Std |
+|---|---:|---:|
+| MAE (MPa) | 8.6075 | 0.7383 |
+| RMSE (MPa) | 10.8337 | 0.8867 |
+| R² | 0.5809 | 0.0517 |
+
+Kết quả chi tiết:
+
+`reports/tables/linear_stability_group7_cv.csv`
+
+Thí nghiệm không sử dụng Test gốc và không
+thay đổi mô hình cuối đã lựa chọn.
+
+Các lượt đánh giá không hoàn toàn độc lập,
+vì vậy độ lệch chuẩn chỉ được dùng để mô tả
+mức dao động của kết quả.
+
 ## 17. Giới hạn của hệ thống
 
 - Linear Regression chỉ biểu diễn quan hệ tuyến tính.
@@ -704,6 +775,26 @@ Lưu ý:
 - Kết quả không thay thế các thí nghiệm và
   tiêu chuẩn kiểm định vật liệu.
 - Mô hình chỉ được sử dụng cho học tập và khảo sát.
+
+### Giới hạn của cách chia dữ liệu
+
+Cách chia Train/Validation/Test ban đầu
+tạo nhóm theo cả 8 đặc trưng đầu vào,
+bao gồm tuổi bê tông (age).
+
+Các mẫu có cùng 7 thành phần vật liệu
+nhưng khác tuổi vẫn có thể xuất hiện
+trong những tập dữ liệu khác nhau.
+
+Vì vậy, kết quả Test ban đầu không được
+xem là đánh giá hoàn toàn độc lập theo
+cấp phối vật liệu.
+
+Nhóm đã bổ sung Group Cross-Validation
+theo 7 thành phần trên tập Train nhằm
+khảo sát khả năng tổng quát hóa đối với
+cấp phối chưa xuất hiện trong phần
+huấn luyện của từng fold.
 
 
 ## 18. Các tài liệu kết quả
