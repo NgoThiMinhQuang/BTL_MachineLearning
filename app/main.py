@@ -340,3 +340,353 @@ def prediction_page():
             "Cache-Control": "no-store, max-age=0"
         }
     )
+
+
+# =====================================
+# 13. API DỮ LIỆU DASHBOARD
+# =====================================
+
+@app.get("/api/dashboard/summary")
+def get_dashboard_summary():
+
+    # Đọc kết quả so sánh trên tập Validation
+    validation_path = (
+        ROOT
+        / "reports"
+        / "tables"
+        / "model_comparison_validation.csv"
+    )
+
+    validation_df = pd.read_csv(validation_path)
+
+    # Đọc kết quả cuối cùng trên tập Test
+    test_path = (
+        ROOT
+        / "reports"
+        / "tables"
+        / "final_test_metrics.csv"
+    )
+
+    test_df = pd.read_csv(test_path)
+
+    # Đọc kết quả thử nghiệm SGD Learning Rate
+    sgd_path = (
+        ROOT
+        / "reports"
+        / "tables"
+        / "sgd_learning_rate_results.csv"
+    )
+
+    sgd_df = pd.read_csv(sgd_path)
+
+    # Đọc số mẫu từ các tập dữ liệu đã chia
+    train_df = pd.read_csv(
+        ROOT / "data" / "processed" / "train.csv"
+    )
+
+    val_df = pd.read_csv(
+        ROOT / "data" / "processed" / "validation.csv"
+    )
+
+    test_data_df = pd.read_csv(
+        ROOT / "data" / "processed" / "test.csv"
+    )
+
+    # Kết quả Test của mô hình cuối
+    test_row = test_df.iloc[0]
+
+    test_metrics = {
+        "MAE": float(test_row["MAE"]),
+        "RMSE": float(test_row["RMSE"]),
+        "R2": float(test_row["R2"])
+    }
+
+    # Kết quả so sánh mô hình
+    validation_results = []
+
+    for _, row in validation_df.iterrows():
+
+        validation_results.append({
+            "model": str(row["model"]),
+            "MAE": float(row["MAE"]),
+            "RMSE": float(row["RMSE"]),
+            "R2": float(row["R2"])
+        })
+
+    # Kết quả SGD Learning Rate
+    sgd_results = []
+
+    for _, row in sgd_df.iterrows():
+
+        sgd_results.append({
+            "learning_rate": float(
+                row["learning_rate"]
+            ),
+            "MAE": float(row["MAE"]),
+            "RMSE": float(row["RMSE"]),
+            "R2": float(row["R2"])
+        })
+
+    # Mô hình được chọn theo cấu hình hiện tại
+    selected_model = (
+        "Linear Regression"
+        if config["model_type"] == "linear"
+        else config["model_type"]
+    )
+
+    return {
+        "selected_model": selected_model,
+
+        "test": test_metrics,
+
+        "validation": validation_results,
+
+        "sgd": sgd_results,
+
+        "split": {
+            "train": len(train_df),
+            "validation": len(val_df),
+            "test": len(test_data_df)
+        }
+    }
+
+
+# =====================================
+# 14. API PHỤC VỤ BIỂU ĐỒ
+# =====================================
+
+DASHBOARD_FIGURES = {
+    "actual_vs_predicted.png",
+    "residual_vs_age.png",
+    "residual_vs_actual_strength.png",
+    "sgd_learning_rate_loss.png"
+}
+
+
+@app.get("/api/dashboard/chart/{filename}")
+def get_dashboard_chart(filename: str):
+
+    # Chỉ cho truy cập các biểu đồ được cho phép
+    if filename not in DASHBOARD_FIGURES:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Biểu đồ không tồn tại"
+        )
+
+    chart_path = (
+        ROOT / "reports" / "figures" / filename
+    )
+
+    if not chart_path.is_file():
+
+        raise HTTPException(
+            status_code=404,
+            detail="Không tìm thấy file biểu đồ"
+        )
+
+    return FileResponse(
+        chart_path,
+        media_type="image/png"
+    )
+
+
+# =====================================
+# 15. TRANG WEB DASHBOARD
+# =====================================
+
+@app.get("/dashboard", include_in_schema=False)
+@app.get("/dashboard.html", include_in_schema=False)
+def dashboard_page():
+
+    return FileResponse(
+        TEMPLATE_DIR / "dashboard.html",
+        media_type="text/html",
+        headers={
+            "Cache-Control": "no-store, max-age=0"
+        }
+    )
+
+
+
+# =====================================
+# 16. PHÂN TÍCH ĐỘ NHẠY - SENSITIVITY
+# =====================================
+
+from typing import Literal
+
+
+# Mở rộng schema đầu vào đã có
+class SensitivityInput(ConcreteInput):
+
+    feature: Literal[
+        "cement",
+        "slag",
+        "fly_ash",
+        "water",
+        "superplasticizer",
+        "coarse_aggregate",
+        "fine_aggregate",
+        "age"
+    ]
+
+
+# =====================================
+# API TÍNH PHÂN TÍCH ĐỘ NHẠY
+# =====================================
+
+@app.post("/api/sensitivity")
+def predict_sensitivity(request: SensitivityInput):
+
+    # Lấy 8 thông số đầu vào
+    values = request.model_dump(
+        exclude={"feature"}
+    )
+
+    # Thông số người dùng chọn để khảo sát
+    selected = request.feature
+
+    outside = []
+
+    # =====================================
+    # 1. KIỂM TRA MIỀN TRAIN
+    # =====================================
+
+    for feature in FEATURES:
+
+        low, high = DOMAIN[feature]
+        value = values[feature]
+
+        if not (low <= value <= high):
+
+            outside.append({
+                "feature": feature,
+                "name": FEATURE_NAMES[feature],
+                "value": value,
+                "min": low,
+                "max": high
+            })
+
+    if outside:
+
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "message": (
+                    "Dữ liệu nằm ngoài miền huấn luyện"
+                ),
+                "fields": outside
+            }
+        )
+
+    # =====================================
+    # 2. TẠO CÁC GIÁ TRỊ KHẢO SÁT
+    # =====================================
+
+    low, high = DOMAIN[selected]
+
+    current = values[selected]
+
+    count = 31
+
+    if selected == "age":
+
+        # Tuổi bê tông phải là số nguyên
+        samples = sorted({
+
+            round(
+                low + (high - low)
+                * i / (count - 1)
+            )
+
+            for i in range(count)
+
+        } | {int(current)})
+
+    else:
+
+        samples = sorted({
+
+            round(
+                low + (high - low)
+                * i / (count - 1),
+                6
+            )
+
+            for i in range(count)
+
+        } | {float(current)})
+
+    # =====================================
+    # 3. GIỮ NGUYÊN 7 BIẾN CÒN LẠI
+    # =====================================
+
+    scenarios = []
+
+    for amount in samples:
+
+        scenario = dict(values)
+
+        # Chỉ thay đổi một thông số
+        scenario[selected] = amount
+
+        scenarios.append(scenario)
+
+    # =====================================
+    # 4. DỰ ĐOÁN BẰNG MODEL HIỆN TẠI
+    # =====================================
+
+    X = pd.DataFrame(
+        scenarios,
+        columns=FEATURES
+    )
+
+    predictions = model.predict(X)
+
+    # Tìm giá trị dự đoán tương ứng
+    # với cấp phối người dùng đang nhập
+    baseline_index = samples.index(current)
+
+    # =====================================
+    # 5. TRẢ KẾT QUẢ CHO BIỂU ĐỒ
+    # =====================================
+
+    return {
+
+        "feature": selected,
+
+        "name": FEATURE_NAMES[selected],
+
+        "unit": (
+            "ngày"
+            if selected == "age"
+            else "kg/m³"
+        ),
+
+        "min": float(low),
+
+        "max": float(high),
+
+        "baseline": {
+
+            "value": float(current),
+
+            "strength_mpa": float(
+                predictions[baseline_index]
+            )
+
+        },
+
+        "points": [
+
+            {
+                "value": float(amount),
+                "strength_mpa": float(prediction)
+            }
+
+            for amount, prediction
+            in zip(samples, predictions)
+
+        ]
+
+    }

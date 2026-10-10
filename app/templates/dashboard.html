@@ -1,0 +1,990 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Dashboard đánh giá mô hình - Project 12</title>
+
+    <style>
+        /* =====================================
+           1. GIAO DIỆN CHUNG
+           ===================================== */
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f6fb;
+            color: #243247;
+        }
+
+        /* =====================================
+           2. THANH MENU
+           ===================================== */
+
+        nav {
+            background: #174a7e;
+            padding: 18px 7%;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .menu {
+            display: flex;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+
+        .menu a {
+            color: white;
+            text-decoration: none;
+            font-size: 15px;
+        }
+
+        .menu a:hover,
+        .menu a.active {
+            text-decoration: underline;
+            text-underline-offset: 6px;
+        }
+
+        .menu a.active {
+            font-weight: bold;
+        }
+
+        /* =====================================
+           3. KHUNG CHÍNH
+           ===================================== */
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 45px 25px;
+        }
+
+        .hero {
+            background: white;
+            padding: 35px;
+            border-radius: 14px;
+            box-shadow: 0 4px 20px #00000010;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 8px 14px;
+            border-radius: 20px;
+            background: #e9f2ff;
+            color: #1768bb;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        h1 {
+            color: #174a7e;
+            line-height: 1.3;
+            font-size: 32px;
+            margin-bottom: 15px;
+        }
+
+        h2 {
+            color: #174a7e;
+            font-size: 22px;
+            margin-top: 0;
+        }
+
+        h3 {
+            color: #174a7e;
+            font-size: 18px;
+        }
+
+        p {
+            line-height: 1.7;
+            color: #596579;
+        }
+
+        /* =====================================
+           4. THẺ THỐNG KÊ
+           ===================================== */
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 28px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 15px #00000008;
+        }
+
+        .stat-card h3 {
+            color: #1768bb;
+            font-size: 32px;
+            margin: 0 0 12px;
+        }
+
+        .stat-card p {
+            margin: 0;
+        }
+
+        .stat-card small {
+            display: block;
+            color: #66758c;
+            margin-top: 10px;
+        }
+
+        /* =====================================
+           5. PHẦN NỘI DUNG
+           ===================================== */
+
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 30px;
+        }
+
+        .section-description {
+            margin-bottom: 22px;
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 570px;
+        }
+
+        th,
+        td {
+            padding: 14px;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: left;
+        }
+
+        th {
+            background: #edf5ff;
+            color: #174a7e;
+        }
+
+        tr.selected {
+            background: #e9f8ee;
+            font-weight: bold;
+        }
+
+        /* =====================================
+           6. CÁC BIỂU ĐỒ
+           ===================================== */
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 22px;
+        }
+
+        .chart-card {
+            min-width: 0;
+            padding: 18px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+        }
+
+        .chart-card h3 {
+            margin-top: 0;
+            line-height: 1.4;
+        }
+
+        .chart-card img {
+            display: block;
+            width: 100%;
+            height: auto;
+            border-radius: 6px;
+        }
+
+        .chart-card p {
+            font-size: 14px;
+        }
+
+        .chart-error {
+            color: #b42318;
+            font-size: 13px;
+        }
+
+        /* =====================================
+           7. MODEL CARD
+           ===================================== */
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .info-item {
+            background: #f5f8fc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 18px;
+        }
+
+        .info-item strong {
+            display: block;
+            margin-bottom: 10px;
+            color: #174a7e;
+        }
+
+        .info-item span {
+            line-height: 1.6;
+        }
+
+        .warning {
+            background: #fff8e6;
+            border-left: 4px solid #e6a700;
+            padding: 18px;
+            line-height: 1.7;
+            border-radius: 5px;
+            margin-top: 25px;
+        }
+
+        .status {
+            color: #66758c;
+            margin-top: 15px;
+        }
+
+        .status.error {
+            color: #b42318;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            font-size: 13px;
+            color: #66758c;
+        }
+
+        /* =====================================
+           8. RESPONSIVE
+           ===================================== */
+
+        @media (max-width: 750px) {
+
+            nav {
+                padding: 16px 20px;
+            }
+
+            .logo {
+                font-size: 17px;
+            }
+
+            .container {
+                padding: 20px 12px;
+            }
+
+            .hero,
+            .section {
+                padding: 22px;
+            }
+
+            h1 {
+                font-size: 26px;
+            }
+
+            .stats,
+            .chart-grid,
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+    </style>
+</head>
+
+
+<body>
+
+    <!-- =====================================
+         1. THANH MENU
+         ===================================== -->
+
+    <nav>
+
+        <div class="logo">
+            Concrete ML - Project 12
+        </div>
+
+        <div class="menu">
+
+            <a href="./index.html">
+                Trang chủ
+            </a>
+
+            <a href="./predict.html">
+                Dự đoán
+            </a>
+
+            <a href="./dashboard.html"
+               class="active"
+               aria-current="page">
+                Dashboard
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <main class="container">
+
+        <!-- =====================================
+             2. GIỚI THIỆU DASHBOARD
+             ===================================== -->
+
+        <section class="hero">
+
+            <span class="tag">
+                MODEL EVALUATION - PROJECT 12
+            </span>
+
+            <h1>
+                Dashboard đánh giá mô hình
+                Machine Learning
+            </h1>
+
+            <p>
+                Trang này trình bày kết quả đánh giá
+                các mô hình hồi quy dự đoán cường độ
+                nén bê tông trên tập Validation và Test.
+            </p>
+
+            <p>
+                Các số liệu và biểu đồ được lấy từ
+                kết quả thí nghiệm đã lưu trong
+                thư mục reports của project.
+            </p>
+
+            <p id="dashboardStatus"
+               class="status"
+               role="status">
+                Đang tải kết quả đánh giá...
+            </p>
+
+        </section>
+
+
+        <!-- =====================================
+             3. METRICS TRÊN TẬP TEST
+             ===================================== -->
+
+        <section class="stats">
+
+            <div class="stat-card">
+
+                <h3 id="testMAE">--</h3>
+
+                <p>MAE</p>
+
+                <small>
+                    Sai số tuyệt đối trung bình (MPa)
+                </small>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <h3 id="testRMSE">--</h3>
+
+                <p>RMSE</p>
+
+                <small>
+                    Căn bậc hai sai số bình phương
+                    trung bình (MPa)
+                </small>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <h3 id="testR2">--</h3>
+
+                <p>R²</p>
+
+                <small>
+                    Hệ số xác định trên tập Test
+                </small>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================
+             4. SO SÁNH 3 MÔ HÌNH
+             ===================================== -->
+
+        <section class="section">
+
+            <h2>So sánh mô hình trên tập Validation</h2>
+
+            <p class="section-description">
+                Các mô hình được so sánh bằng
+                MAE, RMSE và R² trên cùng tập Validation.
+                Mô hình có RMSE thấp nhất được lựa chọn
+                để đánh giá cuối cùng trên Test.
+            </p>
+
+            <div class="table-wrapper">
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mô hình</th>
+                            <th>MAE (MPa)</th>
+                            <th>RMSE (MPa)</th>
+                            <th>R²</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="modelTable">
+                        <tr>
+                            <td colspan="4">
+                                Đang tải dữ liệu...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+
+            <p>
+                Mô hình cuối cùng:
+                <strong id="selectedModel">
+                    Đang tải...
+                </strong>
+            </p>
+
+        </section>
+
+
+        <!-- =====================================
+             5. THÍ NGHIỆM LEARNING RATE
+             ===================================== -->
+
+        <section class="section">
+
+            <h2>Thí nghiệm SGD Learning Rate</h2>
+
+            <p>
+                SGDRegressor được thử nghiệm với
+                ba learning rate khác nhau.
+                Bảng dưới đây sử dụng kết quả
+                trên tập Validation.
+            </p>
+
+            <div class="table-wrapper">
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Learning Rate</th>
+                            <th>MAE (MPa)</th>
+                            <th>RMSE (MPa)</th>
+                            <th>R²</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="sgdTable">
+                        <tr>
+                            <td colspan="4">
+                                Đang tải dữ liệu...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================
+             6. BIỂU ĐỒ ĐÁNH GIÁ
+             ===================================== -->
+
+        <section class="section">
+
+            <h2>Biểu đồ đánh giá mô hình</h2>
+
+            <p>
+                Các biểu đồ sau được tạo từ kết quả
+                đánh giá mô hình và được lưu sẵn
+                trong reports/figures.
+            </p>
+
+            <div class="chart-grid">
+
+                <!-- ACTUAL VS PREDICTED -->
+                <div class="chart-card">
+
+                    <h3>
+                        Actual vs Predicted
+                    </h3>
+
+                    <img
+                        data-chart="actual_vs_predicted.png"
+                        alt="Biểu đồ cường độ thực tế so với giá trị dự đoán"
+                        loading="lazy"
+                    >
+
+                    <p>
+                        So sánh cường độ nén thực tế
+                        và cường độ do mô hình dự đoán.
+                    </p>
+
+                </div>
+
+
+                <!-- RESIDUAL VS AGE -->
+                <div class="chart-card">
+
+                    <h3>
+                        Residual theo tuổi bê tông
+                    </h3>
+
+                    <img
+                        data-chart="residual_vs_age.png"
+                        alt="Biểu đồ residual theo tuổi bê tông"
+                        loading="lazy"
+                    >
+
+                    <p>
+                        Kiểm tra sai số dự đoán khi
+                        tuổi bảo dưỡng thay đổi.
+                    </p>
+
+                </div>
+
+
+                <!-- RESIDUAL VS ACTUAL -->
+                <div class="chart-card">
+
+                    <h3>
+                        Residual theo cường độ thực tế
+                    </h3>
+
+                    <img
+                        data-chart="residual_vs_actual_strength.png"
+                        alt="Biểu đồ residual theo cường độ thực tế"
+                        loading="lazy"
+                    >
+
+                    <p>
+                        Quan sát xu hướng dự đoán
+                        cao hoặc thấp hơn thực tế
+                        ở các mức cường độ.
+                    </p>
+
+                </div>
+
+
+                <!-- SGD LOSS -->
+                <div class="chart-card">
+
+                    <h3>
+                        SGD Loss theo Learning Rate
+                    </h3>
+
+                    <img
+                        data-chart="sgd_learning_rate_loss.png"
+                        alt="Biểu đồ SGD loss theo epoch và learning rate"
+                        loading="lazy"
+                    >
+
+                    <p>
+                        Theo dõi sự thay đổi hàm mất mát
+                        trong quá trình tối ưu SGD.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================
+             7. MODEL CARD
+             ===================================== -->
+
+        <section class="section">
+
+            <h2>Thông tin mô hình - Model Card</h2>
+
+            <div class="info-grid">
+
+                <div class="info-item">
+                    <strong>Mô hình cuối cùng</strong>
+                    <span id="modelCardName">
+                        Đang tải...
+                    </span>
+                </div>
+
+                <div class="info-item">
+                    <strong>Dữ liệu</strong>
+                    <span>
+                        Concrete Compressive Strength
+                        - UCI Machine Learning Repository
+                    </span>
+                </div>
+
+                <div class="info-item">
+                    <strong>Biến đầu vào</strong>
+                    <span>
+                        8 biến cấp phối và tuổi bê tông
+                    </span>
+                </div>
+
+                <div class="info-item">
+                    <strong>Biến dự đoán</strong>
+                    <span>
+                        Cường độ nén bê tông (MPa)
+                    </span>
+                </div>
+
+                <div class="info-item">
+                    <strong>Tiêu chí chọn mô hình</strong>
+                    <span>
+                        RMSE trên tập Validation
+                    </span>
+                </div>
+
+                <div class="info-item">
+                    <strong>Chia dữ liệu</strong>
+                    <span id="dataSplit">
+                        Đang tải...
+                    </span>
+                </div>
+
+            </div>
+
+            <div class="warning">
+
+                <strong>Giới hạn mô hình:</strong>
+
+                Linear Regression chưa mô tả đầy đủ
+                các quan hệ phi tuyến, đặc biệt ảnh hưởng
+                của tuổi bê tông. Các hệ số và tương quan
+                không chứng minh quan hệ nhân quả.
+
+                Kết quả chỉ dùng cho mục đích học tập
+                và hỗ trợ khảo sát, không thay thế
+                thí nghiệm nén bê tông theo tiêu chuẩn.
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <footer>
+        Project 12 - Học máy cơ bản
+        | Concrete Compressive Strength
+    </footer>
+
+
+    <script>
+
+        // =====================================
+        // 1. CẤU HÌNH API
+        // =====================================
+
+        const isFastAPI =
+            window.location.port === "8000";
+
+        const API_BASE = isFastAPI
+            ? ""
+            : "http://127.0.0.1:8000";
+
+
+        // =====================================
+        // 2. ĐIỀU HƯỚNG FASTAPI
+        // =====================================
+
+        if (isFastAPI) {
+
+            document.querySelectorAll(
+                'a[href="./index.html"]'
+            ).forEach(link => {
+                link.href = "/";
+            });
+
+            document.querySelectorAll(
+                'a[href="./predict.html"]'
+            ).forEach(link => {
+                link.href = "/predict";
+            });
+
+            document.querySelectorAll(
+                'a[href="./dashboard.html"]'
+            ).forEach(link => {
+                link.href = "/dashboard";
+            });
+        }
+
+
+        // =====================================
+        // 3. ĐỊNH DẠNG CHỈ SỐ
+        // =====================================
+
+        function formatMetric(value, digits = 2) {
+            const number = Number(value);
+
+            return Number.isFinite(number)
+                ? number.toFixed(digits)
+                : "--";
+        }
+
+
+        // =====================================
+        // 4. HIỂN THỊ BẢNG SO SÁNH
+        // =====================================
+
+        function renderTable(
+            tableId,
+            rows,
+            firstColumn,
+            selectedValue = null
+        ) {
+
+            const tbody =
+                document.getElementById(tableId);
+
+            tbody.replaceChildren();
+
+            rows.forEach(row => {
+
+                const tr =
+                    document.createElement("tr");
+
+                if (
+                    selectedValue !== null &&
+                    row[firstColumn] === selectedValue
+                ) {
+                    tr.classList.add("selected");
+                }
+
+                const first =
+                    document.createElement("td");
+
+                first.textContent = String(
+                    row[firstColumn]
+                );
+
+                tr.appendChild(first);
+
+                ["MAE", "RMSE", "R2"].forEach(key => {
+
+                    const td =
+                        document.createElement("td");
+
+                    td.textContent = formatMetric(
+                        row[key],
+                        key === "R2" ? 3 : 2
+                    );
+
+                    tr.appendChild(td);
+
+                });
+
+                tbody.appendChild(tr);
+            });
+        }
+
+
+        // =====================================
+        // 5. HIỂN THỊ BIỂU ĐỒ
+        // =====================================
+
+        function showCharts() {
+
+            const images =
+                document.querySelectorAll(
+                    "img[data-chart]"
+                );
+
+            images.forEach(img => {
+
+                const filename = img.dataset.chart;
+
+                img.onerror = function() {
+
+                    img.style.display = "none";
+
+                    const message =
+                        document.createElement("p");
+
+                    message.className = "chart-error";
+
+                    message.textContent =
+                        "Không tải được biểu đồ " +
+                        filename +
+                        ". Hãy kiểm tra FastAPI.";
+
+                    img.insertAdjacentElement(
+                        "afterend",
+                        message
+                    );
+                };
+
+                img.src =
+                    `${API_BASE}/api/dashboard/chart/${filename}`;
+
+            });
+        }
+
+
+        // =====================================
+        // 6. LẤY DỮ LIỆU DASHBOARD
+        // =====================================
+
+        async function loadDashboard() {
+
+            const status =
+                document.getElementById(
+                    "dashboardStatus"
+                );
+
+            try {
+
+                const response = await fetch(
+                    `${API_BASE}/api/dashboard/summary`,
+                    {
+                        cache: "no-store"
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error(
+                        "Không tải được dữ liệu Dashboard"
+                    );
+                }
+
+                const data = await response.json();
+
+                // Metrics tập Test
+                document.getElementById(
+                    "testMAE"
+                ).textContent = formatMetric(
+                    data.test.MAE,
+                    2
+                );
+
+                document.getElementById(
+                    "testRMSE"
+                ).textContent = formatMetric(
+                    data.test.RMSE,
+                    2
+                );
+
+                document.getElementById(
+                    "testR2"
+                ).textContent = formatMetric(
+                    data.test.R2,
+                    3
+                );
+
+                // Tên mô hình
+                document.getElementById(
+                    "selectedModel"
+                ).textContent =
+                    data.selected_model;
+
+                document.getElementById(
+                    "modelCardName"
+                ).textContent =
+                    data.selected_model;
+
+                // Chia dữ liệu
+                document.getElementById(
+                    "dataSplit"
+                ).textContent =
+                    `Train: ${data.split.train} mẫu | ` +
+                    `Validation: ${data.split.validation} mẫu | ` +
+                    `Test: ${data.split.test} mẫu`;
+
+                // Bảng Validation
+                renderTable(
+                    "modelTable",
+                    data.validation,
+                    "model",
+                    data.selected_model
+                );
+
+                // Bảng SGD
+                renderTable(
+                    "sgdTable",
+                    data.sgd,
+                    "learning_rate"
+                );
+
+                status.textContent =
+                    "Đã tải kết quả đánh giá từ báo cáo Machine Learning.";
+
+                status.classList.remove("error");
+
+            } catch (error) {
+
+                console.error(
+                    "Lỗi Dashboard:",
+                    error
+                );
+
+                status.textContent =
+                    "Không thể tải kết quả Dashboard. " +
+                    "Hãy kiểm tra FastAPI ở cổng 8000 " +
+                    "và endpoint /api/dashboard/summary.";
+
+                status.classList.add("error");
+            }
+        }
+
+
+        // =====================================
+        // 7. KHỞI TẠO DASHBOARD
+        // =====================================
+
+        showCharts();
+        loadDashboard();
+
+    </script>
+
+</body>
+</html>
