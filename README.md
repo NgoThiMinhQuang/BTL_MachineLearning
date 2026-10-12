@@ -1,7 +1,7 @@
 
 # PROJECT 12 - ƯỚC LƯỢNG CƯỜNG ĐỘ NÉN BÊ TÔNG
 
-## 1. Giới thiệu đề tài xin chao cac bạn da quay 
+## 1. Giới thiệu đề tài
 
 Đồ án Machine Learning xây dựng hệ thống ước lượng cường độ
 chịu nén của bê tông (Concrete Compressive Strength) dựa trên
