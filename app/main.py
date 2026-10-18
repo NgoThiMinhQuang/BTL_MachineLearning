@@ -6,7 +6,7 @@ import math
 
 import joblib
 import pandas as pd
-
+from sklearn.pipeline import Pipeline
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse
@@ -54,21 +54,33 @@ CONFIG_PATH = ROOT / "config" / "final_model.json"
 with open(CONFIG_PATH, "r", encoding="utf-8") as f:
     config = json.load(f)
 
-if config["model_type"] != "linear":
-    raise RuntimeError(
-        "API hiện chỉ hỗ trợ mô hình Linear Regression"
-    )
 
-
-# =====================================
-# 3. NẠP MODEL ĐÃ HUẤN LUYỆN
-# =====================================
-
+# Lay duong dan model tu file config
 MODEL_PATH = ROOT / config["model_path"]
 
-# Chỉ nạp model do chính nhóm tạo và tin cậy.
-# Model chỉ được tải một lần khi khởi động server.
-model = joblib.load(MODEL_PATH)
+# Nap model da huan luyen
+saved_model = joblib.load(MODEL_PATH)
+
+# Neu model duoc chon la Linear Regression
+if config["model_type"] == "linear":
+
+    model = saved_model
+    MODEL_NAME = "Linear Regression"
+
+# Neu model duoc chon la SGDRegressor
+elif config["model_type"] == "sgd":
+
+    model = Pipeline([
+        ("scaler", saved_model["scaler"]),
+        ("model", saved_model["model"])
+    ])
+
+    MODEL_NAME = "SGDRegressor"
+
+else:
+    raise RuntimeError(
+        "Loai mo hinh khong duoc ho tro"
+    )
 
 
 # =====================================
@@ -236,7 +248,7 @@ def health_check():
     return {
         "status": "ok",
         "message": "API đang hoạt động",
-        "model": "Linear Regression",
+        "model": MODEL_NAME,
         "version": "1.0"
     }
 
@@ -343,7 +355,7 @@ def predict_strength(request: ConcreteInput):
         "predicted_strength_mpa": round(
             prediction, 2
         ),
-        "model": "Linear Regression",
+        "model": MODEL_NAME,
         "warning": (
             "Chỉ sử dụng cho mục đích học tập và khảo sát. "
             "Không thay thế thí nghiệm cường độ nén "
@@ -478,11 +490,7 @@ def get_dashboard_summary():
         })
 
     # Mô hình được chọn theo cấu hình hiện tại
-    selected_model = (
-        "Linear Regression"
-        if config["model_type"] == "linear"
-        else config["model_type"]
-    )
+    selected_model = MODEL_NAME
 
     return {
         "selected_model": selected_model,
